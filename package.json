@@ -1,0 +1,12 @@
+{
+  "name": "qmk_configurator_electron",
+  "version": "0.0.1",
+  "main": "main.js",
+  "author": "Elliot Powell",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^4.1.3"
+  }
+}
