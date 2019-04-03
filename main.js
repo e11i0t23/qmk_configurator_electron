@@ -1,10 +1,17 @@
 const { app, BrowserWindow } = require('electron')
-
+const path = require('path')
 let win // Global ref og window object
 
 function createWindow () {
-  win = new BrowserWindow({ width: 1200, height: 800 })
-  win.loadURL('http://localhost:8080/flash')
+  win = new BrowserWindow({
+  width: 1200,
+  height: 800,
+  webPreferences: {
+    nodeIntegration: false,
+    preload: path.join(__dirname, 'preload.js')
+  }
+})
+  win.loadURL('http://localhost:8080')
   //win.loadFile('./dist/index.html')
   win.webContents.openDevTools()
   // Emitted when the window is closed.
