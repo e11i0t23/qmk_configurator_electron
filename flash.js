@@ -5,11 +5,6 @@ const path = require('path')
 const https = require('https')
 const usb = require('usb')
 //const usbDevices = require('./usbDevices')
-var dfuProgrammer = path.resolve('dfu/dfuprogrammer')
-
-if (process.platform == "win32") {
-  dfuProgrammer =  '"' + dfuProgrammer + '.exe"' 
-}
 
 const usbDevices = {
   1003: {  // Atmel Corp., list sourced from http://www.linux-usb.org/usb.ids
@@ -32,10 +27,17 @@ const usbDevices = {
 
 temp.track()
 
+var dfuProgrammer = path.resolve('dfu', './dfu-programmer')
+
+if (process.platform == "win32") {
+  dfuProgrammer =  dfuProgrammer + '.exe' 
+  console.log(dfuProgrammer)
+} 
+
 function flashURL(url, keyboard, filename){
   console.log(url, keyboard, filename)
   temp.mkdir('qmkconfigurator', function(err, dirPath){
-    inputPath = path.join(dirPath, filename);
+    inputPath = path.join(dirPath , filename);
     file = fs.createWriteStream(inputPath);
     var request = https.get(url, function(response) {
       response.pipe(file);
@@ -61,15 +63,47 @@ function checkForBoard(inputPath) {
       dfu_device = usbDevices[device.deviceDescriptor.idVendor][device.deviceDescriptor.idProduct];
       console.log('Found atmel device: '+dfu_device[0]);
       console.log(device)
-      flashHex(inputPath, dfu_device)
+      sendHex(dfu_device, inputPath, function(success){
+        if (success){
+          //window.Bridge.statusAppend("Flash Sucessful")
+        }
+      })
       break; // First match wins for now
     }
   }
 }
 
-function flashHex(file, dfu_device){
-  command = 'dfu-programmer ' + dfu_device + ' erase --force'
-  exec(command, function(error, stdout, stderr) {
+
+function sendHex(dfu_device, file, callback) {
+  eraseChip(dfu_device, function(success) {
+    if (success) {
+      flashChip(dfu_device, file, function(success) {
+        if (success) {
+          resetChip(dfu_device, function(success) {
+            if (success) {
+              callback(true);
+            } else {
+              console.log('Error resetting chip, see status window.')
+              callback(false)
+            }
+          });
+        } else {
+          console.log('Error resetting chip, memory/other.')
+          callback(false);
+        }
+      });
+    } else {
+      console.log('Error resetting chip, no device/other.')
+      callback(false);
+    }
+  });
+}
+
+function eraseChip(dfu_device, callback) {
+  let dfu_args = ' ' + dfu_device + ' erase --force';
+  window.Bridge.statusAppend('dfu-programmer' + dfu_args);
+  console.log(dfuProgrammer + dfu_args);
+  exec(dfuProgrammer + dfu_args, function(error, stdout, stderr) {
     console.log('stdout');
     console.log(stdout);
     window.Bridge.statusAppend(stdout);
@@ -79,6 +113,44 @@ function flashHex(file, dfu_device){
     const regex = /.*Success.*\r?\n|\rChecking memory from .* Empty.*/;
     if (regex.test(stderr)) {
       callback(true);
+    } else {
+      callback(false);
+    }
+  });
+}
+
+function flashChip(dfu_device, file, callback) {
+  let dfu_args = ' ' + dfu_device + ' flash ' + file;
+  window.Bridge.statusAppend('dfu-programmer' + dfu_args);
+  console.log(dfuProgrammer + dfu_args);
+  exec(dfuProgrammer + dfu_args, function(error, stdout, stderr) {
+    console.log('stdout');
+    console.log(stdout);
+    window.Bridge.statusAppend(stdout);
+    console.log('stderr');
+    console.log(stderr);
+    window.Bridge.statusAppend(stderr);
+    if (stderr.indexOf("Validating...  Success") > -1) {
+      callback(true);
+    } else {
+      callback(false);
+    }
+  });
+}
+
+function resetChip(dfu_device, callback) {
+  let dfu_args = ' ' + dfu_device + ' reset';
+  window.Bridge.statusAppend('dfu-programmer' + dfu_args);
+  console.log(dfuProgrammer + dfu_args);
+  exec(dfuProgrammer + dfu_args, function(error, stdout, stderr) {
+    console.log('stdout');
+    console.log(stdout);
+    window.Bridge.statusAppend(stdout);
+    console.log('stderr');
+    console.log(stderr);
+    window.Bridge.statusAppend(stderr);
+	  if (stderr == "") {
+	    callback(true);
     } else {
       callback(false);
     }
