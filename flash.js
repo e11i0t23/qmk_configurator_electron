@@ -8,15 +8,9 @@ temp.mkdir("qmkconfigurator", function(err, dirPath) {
   window.tempFolder = dirPath;
 });
 
-var dfuProgrammer = path.resolve("dfu", "./dfu-programmer");
 
-if (process.platform == "win32") {
-  dfuProgrammer = dfuProgrammer + ".exe";
-  console.log(dfuProgrammer);
-}
-
-async function flashURL(url, keyboard, filename) {
-  console.log(url, keyboard, filename);
+function flashURL(url, keyboard, filename) {
+  window.Bridge.statusAppend("\n\n ----STARTING FLASHING PROCEDURES----\n");
   window.inputPath = path.join(window.tempFolder, filename);
   wget(url, { output: window.inputPath })
     .then(window.Bridge.statusAppend("File downloaded to " + window.inputPath))

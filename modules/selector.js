@@ -2,41 +2,49 @@ const { dfuProgrammerFlash } = require("./programmers/dfu-programmer");
 const usb = require("usb");
 
 const deviceIDs = {
-  1003: "dfu-programmer",
-  9025: "avrdude",
-  6991: "avrdude",
-  9114: "avrdude",
-  1155: "dfu-util"
+	1003: "dfu-programmer",
+	9025: "avrdude",
+	6991: "avrdude",
+	9114: "avrdude",
+	1155: "dfu-util"
 };
 
 function routes(keyboard) {
-  /* IMPLEMENTED FOR FUTURE CHECKING WITH API TO CHECK DEVICE
-  fetch("http://api.qmk.fm/v1/keyboards/" + keyboard)
-    .then(res => res.json())
-    .then(data => console.log(data.keyboards[keyboard]))
-    .catch(err => console.error(err));
-  */
-
-  for (let device of usb.getDeviceList()) {
-    vendorID = device.deviceDescriptor.idVendor.toString();
-    if (Object.keys(deviceIDs).includes(vendorID)) {
-      console.log("found device");
-      programmer = deviceIDs[vendorID];
-      switch (programmer) {
-        case "dfu-programmer":
-          dfuProgrammerFlash();
-          break;
-        case "avrdude":
-          window.Bridge.statusAppend("not implemented yet");
-        case "dfu-util":
-          window.Bridge.statusAppend("not implemented yet");
-        default:
-          window.Bridge.statusAppend("Programmer not yet implemented for this device");
-          break;
-      }
-      break;
-    }
-  }
+	fetch("http://api.qmk.fm/v1/keyboards/" + keyboard)
+		.then(res => res.json())
+		.then(data => data.keyboards[keyboard].processor)
+		.then(processor => {
+			USBdevices = usb.getDeviceList();
+			USBdevicesQTY = USBdevices.length;
+			for (let USBdevice of USBdevices) {
+				vendorID = USBdevice.deviceDescriptor.idVendor.toString();
+				productID = USBdevice.deviceDescriptor.idProduct.toString();
+				// Check if known VID for AVR/ARM programmers
+				if (Object.keys(deviceIDs).includes(vendorID)) {
+					programmer = deviceIDs[vendorID];
+					// Forwards onto seperate programming scripts found in ./modules/programmers
+					switch (programmer) {
+            case "dfu-programmer":
+              window.Bridge.statusAppend("\nUsing DFU-Programmer");
+							dfuProgrammerFlash("12280", processor);
+							break;
+						case "avrdude":
+							window.Bridge.statusAppend("\nnot implemented yet");
+							break;
+						case "dfu-util":
+							window.Bridge.statusAppend("\nnot implemented yet");
+							break;
+						default:
+							window.Bridge.statusAppend("\nProgrammer not yet implemented for this device");
+							break;
+					}
+					break;
+				} else if (USBdevice == USBdevices[USBdevicesQTY - 1]) {
+					window.Bridge.statusAppend("\nRROR: No USB Device Found");
+				}
+			}
+		})
+		.catch(err => console.error(err));
 }
 
 module.exports = { routes };
