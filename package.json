@@ -1,10 +1,10 @@
 {
   "name": "qmk_configurator_electron",
   "version": "0.0.1",
-  "main": "main.js",
+  "main": "./src/main.js",
   "author": "Elliot Powell",
   "scripts": {
-    "start": "electron .",
+    "start": "electron ./src/main",
     "pack": "electron-builder --dir",
     "dist": "electron-builder"
   },
@@ -12,7 +12,8 @@
     "appId": "com.qmk.configurator",
     "mac": {
       "category": "qmk.config.flash"
-    }
+    },
+    "files": ["./programmer/**/*", "./src/**/*"]
   },
   "devDependencies": {
     "electron": "^4.1.3",

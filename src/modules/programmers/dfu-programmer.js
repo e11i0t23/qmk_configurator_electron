@@ -26,14 +26,15 @@ if (process.platform == 'win32') {
 	console.log(dfuProgrammer);
 }
 
-async function dfuProgrammerFlash(productID, processor) {
+function dfuProgrammerFlash(productID, processor) {
 	DFUdevice = '';
 	if (Object.keys(atmelDevices).includes(productID)) {
 		atmelDevices[productID].forEach(dev => {
 			if ((dev == processor) & !found) {
 				DFUdevice = processor;
 				console.log(DFUdevice);
-				found = true;
+        found = true;
+        window.Bridge.statusAppend("found USB Device")
 			}
 		});
 	}
