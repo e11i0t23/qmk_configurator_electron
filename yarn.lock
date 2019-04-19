@@ -933,11 +933,6 @@ http-signature@~1.2.0:
     jsprim "^1.2.2"
     sshpk "^1.7.0"
 
-https@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/https/-/https-1.0.0.tgz#3c37c7ae1a8eeb966904a2ad1e975a194b7ed3a4"
-  integrity sha1-PDfHrhqO65ZpBKKtHpdaGUt+06Q=
-
 iconv-lite@^0.4.24, iconv-lite@^0.4.4:
   version "0.4.24"
   resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.4.24.tgz#2022b4b25fbddc21d2f524974a474aafe733908b"
@@ -1372,6 +1367,11 @@ node-pre-gyp@^0.11.0:
     rimraf "^2.6.1"
     semver "^5.3.0"
     tar "^4"
+
+node-wget-promise@^0.1.6:
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/node-wget-promise/-/node-wget-promise-0.1.6.tgz#d62c61d77aea6d3a084cad38602163de23a0f67d"
+  integrity sha512-EB1aleH7rp+rjdZRugezC8Nk7QJ6uXueYDUumFXkXQy7Z3HoW+0G6/cxjVMSmQHZmt4TC7xdpleOYnw65/ciLw==
 
 nopt@^4.0.1:
   version "4.0.1"
