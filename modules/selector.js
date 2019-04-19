@@ -1,16 +1,16 @@
-const { dfuProgrammerFlash } = require("./programmers/dfu-programmer");
-const usb = require("usb");
+const { dfuProgrammerFlash } = require('./programmers/dfu-programmer');
+const usb = require('usb');
 
 const deviceIDs = {
-	1003: "dfu-programmer",
-	9025: "avrdude",
-	6991: "avrdude",
-	9114: "avrdude",
-	1155: "dfu-util"
+	1003: 'dfu-programmer',
+	9025: 'avrdude',
+	6991: 'avrdude',
+	9114: 'avrdude',
+	1155: 'dfu-util'
 };
 
 function routes(keyboard) {
-	fetch("http://api.qmk.fm/v1/keyboards/" + keyboard)
+	fetch('http://api.qmk.fm/v1/keyboards/' + keyboard)
 		.then(res => res.json())
 		.then(data => data.keyboards[keyboard].processor)
 		.then(processor => {
@@ -24,23 +24,23 @@ function routes(keyboard) {
 					programmer = deviceIDs[vendorID];
 					// Forwards onto seperate programming scripts found in ./modules/programmers
 					switch (programmer) {
-            case "dfu-programmer":
-              window.Bridge.statusAppend("\nUsing DFU-Programmer");
-							dfuProgrammerFlash("12280", processor);
+						case 'dfu-programmer':
+							window.Bridge.statusAppend('\nUsing DFU-Programmer');
+							dfuProgrammerFlash('12280', processor);
 							break;
-						case "avrdude":
-							window.Bridge.statusAppend("\nnot implemented yet");
+						case 'avrdude':
+							window.Bridge.statusAppend('\nnot implemented yet');
 							break;
-						case "dfu-util":
-							window.Bridge.statusAppend("\nnot implemented yet");
+						case 'dfu-util':
+							window.Bridge.statusAppend('\nnot implemented yet');
 							break;
 						default:
-							window.Bridge.statusAppend("\nProgrammer not yet implemented for this device");
+							window.Bridge.statusAppend('\nProgrammer not yet implemented for this device');
 							break;
 					}
 					break;
 				} else if (USBdevice == USBdevices[USBdevicesQTY - 1]) {
-					window.Bridge.statusAppend("\nRROR: No USB Device Found");
+					window.Bridge.statusAppend('\nRROR: No USB Device Found');
 				}
 			}
 		})
