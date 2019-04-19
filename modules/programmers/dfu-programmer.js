@@ -1,3 +1,5 @@
+const path = require('path');
+
 const atmelDevices = {
   12270: ["atmega8u2"],
   12271: ["atmega16u2"],
