@@ -26,7 +26,7 @@ function routes(keyboard) {
 					switch (programmer) {
 						case 'dfu-programmer':
 							window.Bridge.statusAppend('\nUsing DFU-Programmer');
-							dfuProgrammerFlash('12280', processor);
+							dfuProgrammerFlash(productID, processor);
 							break;
 						case 'avrdude':
 							window.Bridge.statusAppend('\nnot implemented yet');

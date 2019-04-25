@@ -1,4 +1,6 @@
 const path = require('path');
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
 
 const atmelDevices = {
 	12270: ['atmega8u2'],
@@ -29,14 +31,18 @@ if (process.platform == 'win32') {
 function dfuProgrammerFlash(productID, processor) {
 	DFUdevice = '';
 	if (Object.keys(atmelDevices).includes(productID)) {
-		atmelDevices[productID].forEach(dev => {
+		console.log(atmelDevices[productID])
+		for (var i = 0; i < atmelDevices[productID].length; i++){
+			dev = atmelDevices[productID][i]
+			console.log(dev)
 			if ((dev == processor) & !found) {
 				DFUdevice = processor;
 				console.log(DFUdevice);
         found = true;
-        window.Bridge.statusAppend("found USB Device")
+				window.Bridge.statusAppend("found USB Device")
+				flash(DFUdevice)
 			}
-		});
+		}
 	}
 	if (!found) {
 		window.Bridge.statusAppend('\nPlease connect the Keyboard and enter reset');
@@ -46,3 +52,19 @@ function dfuProgrammerFlash(productID, processor) {
 module.exports = {
 	dfuProgrammerFlash
 };
+
+async function flash(Device){
+	commands = [`${dfuProgrammer} ${Device} erase --force`, `${dfuProgrammer} ${Device} flash ${window.inputPath}`, `${dfuProgrammer} ${Device} reset`]
+	console.log(commands)
+	for (let v = 0; v < commands.length; v++) {
+		const command = commands[v];
+		const {stdout, stderro} = await exec(command)
+		if (stderro) {
+			console.error(`error: ${stderr}`);
+			break;
+  	}
+		console.log(`Stdout: \n ${stdout}`);
+		window.Bridge.statusAppend(`\n ${stdout}`)
+	}
+}
+
