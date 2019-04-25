@@ -14,9 +14,9 @@ nvm use
 ### Project setup
 ```
 yarn install  
-yarn run build
+yarn run dist
 ```  
-A build must be performed as it invokes rebuilding native modules
+A build must be performed as it invokes rebuilding native modules (this will be updated soon)
 
 ### Compiles for development
 ```
@@ -31,6 +31,7 @@ yarn run dist
 ## App Structure
 ```  
 ├──dist  (generated on `yarn run dist`)  
+├──build (contains extra files required for build)  
 ├──programmers  (This contains the binaries for the included programmers)  
 └──src  
     ├──modules  (flashing related files)  
@@ -40,3 +41,7 @@ yarn run dist
     ├──main.js  (main file invoked by electron)  
     └──preload.js  (shares code between electron and vue)  
 ```
+### Programmers 
+dfu-programmer  
+dfu-util (Not Yet Implemented)  
+avrdude (Not Yet Implemented)  
