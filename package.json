@@ -2,11 +2,13 @@
   "name": "qmk_configurator_electron",
   "version": "0.0.1",
   "main": "./src/main.js",
-  "author": "Elliot Powell",
+  "author": "Elliot Powell <johnp8727@gmail.com>",
+  "repository": "https://github.com/e11i0t23/qmk_configurator_electron.git",
   "scripts": {
     "start": "electron ./src/main",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "electron-builder --x64",
+    "gh-publish": "electron-builder --x64 --mac -p always"
   },
   "build": {
     "appId": "com.qmk.configurator",
@@ -35,6 +37,7 @@
   },
   "dependencies": {
     "follow-redirects": "^1.7.0",
+    "hid-listen": "github:zvecr/hid-listen",
     "temp": "^0.9.0",
     "usb": "^1.5.0"
   }
