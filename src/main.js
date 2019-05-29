@@ -25,6 +25,7 @@ function createWindow() {
   win.on('closed', () => {
     win = null;
   });
+  console.log('opening app');
 }
 
 function sendStatusToWindow(text) {
