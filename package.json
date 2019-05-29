@@ -1,41 +1,60 @@
 {
   "name": "qmk_configurator_electron",
-  "version": "0.0.1",
+  "version": "0.0.01-beta",
   "main": "./src/main.js",
-  "author": "Elliot Powell <johnp8727@gmail.com>",
+  "author": {
+    "name": "ELliot Powell",
+    "email": "johnp8727@gmail.com"
+  },
   "repository": "https://github.com/e11i0t23/qmk_configurator_electron.git",
   "scripts": {
+    "postinstall": "electron-builder install-app-deps",
     "start": "electron ./src/main",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder --x64",
-    "gh-publish": "electron-builder --x64 --mac -p always"
+    "dist": "electron-builder --publish onTagOrDraft"
   },
   "build": {
+    "directories": {
+      "output": "release"
+    },
     "appId": "com.qmk.configurator",
     "mac": {
-      "category": "qmk.config.flash"
+      "category": "Utilty",
+      "target": [
+        "default"
+      ]
     },
     "linux": {
       "target": [
         "AppImage",
-        "deb"
+        "deb",
+        "tar.xz"
       ]
     },
     "win": {
-      "icon": "build/icon.ico"
+      "icon": "build/icon.ico",
+      "target": [
+        "portable",
+        "nsis",
+        "zip"
+      ]
     },
     "files": [
-      "src/"
-    ],
-    "extraResources": [
-      "programmers/"
+      "src/",
+      "package.json"
     ]
   },
   "devDependencies": {
     "electron": "^4.1.3",
-    "electron-builder": "^20.39.0"
+    "electron-builder": "^20.39.0",
+    "eslint": "^5.16.0",
+    "eslint-config-google": "^0.13.0",
+    "jsdoc": "^3.6.2"
   },
   "dependencies": {
+    "avrgirl-arduino": "^3.0.1",
+    "electron-log": "^3.0.6",
+    "electron-updater": "^4.0.6",
     "follow-redirects": "^1.7.0",
     "hid-listen": "github:zvecr/hid-listen",
     "temp": "^0.9.0",

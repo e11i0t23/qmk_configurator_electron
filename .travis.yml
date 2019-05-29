@@ -1,0 +1,20 @@
+language: node_js
+node_js:
+  - '10'
+matrix:
+  include:
+  - os: linux
+    dist: trusty
+    sudo: required
+  - os: osx
+cache:
+  yarn: true
+notifications:
+  email: false
+script:
+  - yarn dist
+addons:
+  apt:
+    packages:
+    - libusb-1.0-0-dev
+    - libudev-dev
