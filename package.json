@@ -1,11 +1,12 @@
 {
   "name": "qmk_configurator_electron",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "main": "./src/main.js",
   "author": {
     "name": "ELliot Powell",
     "email": "johnp8727@gmail.com"
   },
+  "description": "A layout building and flashing tool for QMK firmware",
   "repository": "https://github.com/e11i0t23/qmk_configurator_electron.git",
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
@@ -45,19 +46,18 @@
     ]
   },
   "devDependencies": {
-    "electron": "^4.1.3",
+    "electron": "^5.0.2",
     "electron-builder": "^20.39.0",
     "eslint": "^5.16.0",
     "eslint-config-google": "^0.13.0",
     "jsdoc": "^3.6.2"
   },
   "dependencies": {
-    "avrgirl-arduino": "^3.0.1",
     "electron-log": "^3.0.6",
     "electron-updater": "^4.0.6",
     "follow-redirects": "^1.7.0",
     "hid-listen": "github:zvecr/hid-listen",
     "temp": "^0.9.0",
-    "usb": "^1.5.0"
+    "usb": "^1.6.0"
   }
 }

@@ -1,5 +1,5 @@
 const {dfuProgrammerFlash} = require('./programmers/dfu-programmer');
-const {avrFlash} = require('./programmers/caterina');
+// const {avrFlash} = require('./programmers/caterina');
 
 const usb = require('usb');
 
@@ -65,8 +65,8 @@ function selector(processor) {
           if (!flashing) {
             flashing = true;
             window.Bridge.statusAppend('\nUsing avrgirl to flash caterina');
-            if (vendorID == 0x1B4F) avrFlash('sf-pro-micro');
-            else avrFlash();
+            // if (vendorID == 0x1B4F) avrFlash('sf-pro-micro');
+            // else avrFlash();
           }
           break;
         case 'dfu-util':

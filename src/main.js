@@ -20,7 +20,9 @@ function createWindow() {
   });
   win.loadURL('http://localhost:8080');
   // win.loadFile('./dist/index.html')
-  win.webContents.openDevTools();
+  if (process.defaultApp) {
+    win.webContents.openDevTools();
+  }
   // Emitted when the window is closed.
   win.on('closed', () => {
     win = null;
@@ -28,6 +30,10 @@ function createWindow() {
   console.log('opening app');
 }
 
+/**
+ * Logging function
+ * @param {string} text Used for logging to a text file
+ */
 function sendStatusToWindow(text) {
   log.info(text);
   win.webContents.send('message', text);
