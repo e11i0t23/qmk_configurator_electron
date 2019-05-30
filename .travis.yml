@@ -1,13 +1,17 @@
 language: node_js
-node_js:
-  - '10.16.0'
 matrix:
   include:
   - os: linux
     dist: trusty
     sudo: required
+    node_js:
+    - '10.16.0'
   - os: osx
+    node_js:
+    - '10.16.0'
   - os: windows
+    node_js:
+    - 'node/10.16.0/x64'
 cache:
   yarn: true
 notifications:
