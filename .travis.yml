@@ -7,6 +7,7 @@ matrix:
     dist: trusty
     sudo: required
   - os: osx
+  - os: windows
 cache:
   yarn: true
 notifications:
