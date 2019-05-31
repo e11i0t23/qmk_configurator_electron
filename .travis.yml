@@ -9,18 +9,10 @@ matrix:
   - os: osx
     node_js:
     - '10.16.0'
-  - os: windows
-    node_js:
-    - 'node/10.12.0'
 cache:
   yarn: true
 notifications:
   email: false
-install:
-  - |
-    if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
-      choco install yarn;
-    fi
 script:
   - yarn dist
 addons:
