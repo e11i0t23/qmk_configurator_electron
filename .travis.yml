@@ -16,6 +16,11 @@ cache:
   yarn: true
 notifications:
   email: false
+install:
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+      choco install yarn;
+    fi
 script:
   - yarn dist
 addons:
@@ -23,6 +28,3 @@ addons:
     packages:
     - libusb-1.0-0-dev
     - libudev-dev
-  choco:
-    packages:
-    - yarn
