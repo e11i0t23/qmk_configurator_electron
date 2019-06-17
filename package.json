@@ -46,7 +46,8 @@
     ]
   },
   "devDependencies": {
-    "electron": "^5.0.2",
+    "electron": "^4.2.4",
+    "avrgirl-arduino": "^3.0.2",
     "electron-builder": "^20.39.0",
     "eslint": "^5.16.0",
     "eslint-config-google": "^0.13.0",

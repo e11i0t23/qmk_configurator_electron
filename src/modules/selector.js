@@ -1,13 +1,13 @@
 const {dfuProgrammerFlash} = require('./programmers/dfu-programmer');
-// const {avrFlash} = require('./programmers/caterina');
+const {avrGirlFlash} = require('./programmers/avrgirl');
 
 const usb = require('usb');
 
 const deviceIDs = {
   0x03eb: 'dfu-programmer', // Atmel vendor id
-  0x2341: 'avrdude', // Arduino vendor id
-  0x1B4F: 'avrdude', // Sparkfun vendor id
-  0x239a: 'avrdude', // adafruit vendor id
+  0x2341: 'avrgirl', // Arduino vendor id
+  0x1B4F: 'avrgirl', // Sparkfun vendor id
+  0x239a: 'avrgirl', // adafruit vendor id
   1155: 'dfu-util',
 };
 
@@ -61,12 +61,12 @@ function selector(processor) {
             flashing = true;
           }
           break;
-        case 'avrdude':
+        case 'avrgirl':
           if (!flashing) {
             flashing = true;
             window.Bridge.statusAppend('\nUsing avrgirl to flash caterina');
-            // if (vendorID == 0x1B4F) avrFlash('sf-pro-micro');
-            // else avrFlash();
+            if (vendorID == 0x1B4F) avrGirlFlash('sf-pro-micro');
+            else avrGirlFlash('micro');
           }
           break;
         case 'dfu-util':
