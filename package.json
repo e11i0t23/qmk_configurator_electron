@@ -15,6 +15,7 @@
     "dist": "electron-builder --publish onTagOrDraft"
   },
   "build": {
+    "extraFiles": ["programmers"],
     "directories": {
       "output": "release"
     },
