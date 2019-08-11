@@ -46,16 +46,16 @@
     ]
   },
   "devDependencies": {
-    "electron": "^4.2.4",
+    "electron": "^4.2.9",
     "avrgirl-arduino": "^3.0.2",
-    "electron-builder": "^20.39.0",
+    "electron-builder": "^20.44.4",
     "eslint": "^5.16.0",
     "eslint-config-google": "^0.13.0",
-    "jsdoc": "^3.6.2"
+    "jsdoc": "^3.6.3"
   },
   "dependencies": {
-    "electron-log": "^3.0.6",
-    "electron-updater": "^4.0.6",
+    "electron-log": "^3.0.7",
+    "electron-updater": "^4.1.2",
     "follow-redirects": "^1.7.0",
     "hid-listen": "github:zvecr/hid-listen",
     "temp": "^0.9.0",

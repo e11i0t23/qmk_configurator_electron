@@ -36,7 +36,7 @@ const Avrgirl = require('avrgirl-arduino');
 function avrGirlFlash(board) {
   const avrgirl = new Avrgirl({
     board: board,
-    manualReset: true,
+    smanualReset: true,
   });
 
   avrgirl.flash(window.filepath, function(error) {

@@ -1,5 +1,6 @@
 const {dfuProgrammerFlash} = require('./programmers/dfu-programmer');
 const {avrGirlFlash} = require('./programmers/avrgirl');
+const {stm32, kiibohd} = require('./programmers/dfu-util');
 
 const usb = require('usb');
 
@@ -8,7 +9,8 @@ const deviceIDs = {
   0x2341: 'avrgirl', // Arduino vendor id
   0x1B4F: 'avrgirl', // Sparkfun vendor id
   0x239a: 'avrgirl', // adafruit vendor id
-  1155: 'dfu-util',
+  0x0483: 'dfu-util',
+  0x1C11: 'dfu-util',
 };
 
 let flashing = false;
@@ -72,7 +74,9 @@ function selector(processor) {
         case 'dfu-util':
           if (!flashing) {
             flashing = true;
-            window.Bridge.statusAppend('\nnot implemented yet');
+            window.Bridge.statusAppend('\nUsing dfu-util to flash');
+            if (vendorID == 0x0483) stm32();
+            if (vendorID == 0x1C11) kiibohd();
           }
           break;
         default:

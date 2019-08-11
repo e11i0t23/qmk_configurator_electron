@@ -42,6 +42,6 @@ yarn run dist
     └──preload.js  (shares code between electron and vue)  
 ```
 ### Programmers 
-dfu-programmer  
-dfu-util (Not Yet Implemented)  
-avrdude (Not Yet Implemented)  
+dfu-programmer (atmel devices atmega32u4 ect)
+dfu-util  (stm32, Kiibohd)
+avrdude (pro micro)  
