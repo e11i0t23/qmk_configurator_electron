@@ -1,16 +1,18 @@
 const {dfuProgrammerFlash} = require('./programmers/dfu-programmer');
-const {avrGirlFlash} = require('./programmers/avrgirl');
 const {stm32, kiibohd} = require('./programmers/dfu-util');
+const {caterina, avrisp, USBtiny, USBasp} = require('./programmers/avrdude');
 
 const usb = require('usb');
 
 const deviceIDs = {
   0x03eb: 'dfu-programmer', // Atmel vendor id
-  0x2341: 'avrgirl', // Arduino vendor id
-  0x1B4F: 'avrgirl', // Sparkfun vendor id
-  0x239a: 'avrgirl', // adafruit vendor id
+  0x2341: 'caterina', // Arduino vendor id
+  0x1B4F: 'caterina', // Sparkfun vendor id
+  0x239a: 'caterina', // adafruit vendor id
   0x0483: 'dfu-util',
   0x1C11: 'dfu-util',
+  0x16C0: 'avrisp/usbasp',
+  0x1781: 'usbtiny',
 };
 
 let flashing = false;
@@ -63,18 +65,35 @@ function selector(processor) {
             flashing = true;
           }
           break;
-        case 'avrgirl':
+        case 'caterina':
           if (!flashing) {
             flashing = true;
-            window.Bridge.statusAppend('\nUsing avrgirl to flash caterina');
-            if (vendorID == 0x1B4F) avrGirlFlash('sf-pro-micro');
-            else avrGirlFlash('micro');
+            window.Bridge.statusAppend('\nUsing avrdude to flash caterina');
+            mcu = 'm32u4';
+            caterina(mcu);
+          }
+          break;
+        case 'avrisp/usbasp':
+          if (!flashing) {
+            flashing = true;
+            window.Bridge.statusAppend('\nUsing avrdude to flash avrisp');
+            mcu = 'm32u4';
+            if (productID== '0x0483') avrisp(mcu);
+            if (productID== '0x05DC') USBasp(mcu);
+          }
+          break;
+        case 'usbtiny':
+          if (!flashing) {
+            flashing = true;
+            window.Bridge.statusAppend('\nUsing avrdude to flash caterina');
+            mcu = 'm32u4';
+            USBtiny(mcu);
           }
           break;
         case 'dfu-util':
           if (!flashing) {
             flashing = true;
-            window.Bridge.statusAppend('\nUsing dfu-util to flash');
+            window.Bridge.statusAppend('\nUsing dfu-util to flash dfu');
             if (vendorID == 0x0483) stm32();
             if (vendorID == 0x1C11) kiibohd();
           }
