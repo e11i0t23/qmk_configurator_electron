@@ -1,6 +1,7 @@
 const {dfuProgrammerFlash} = require('./programmers/dfu-programmer');
 const {stm32, kiibohd} = require('./programmers/dfu-util');
 const {caterina, avrisp, USBtiny, USBasp} = require('./programmers/avrdude');
+const {tlc} = require('./programmers/teensy_loader_cli');
 
 const usb = require('usb');
 
@@ -76,10 +77,19 @@ function selector(processor) {
         case 'avrisp/usbasp':
           if (!flashing) {
             flashing = true;
-            window.Bridge.statusAppend('\nUsing avrdude to flash avrisp');
             mcu = 'm32u4';
-            if (productID== '0x0483') avrisp(mcu);
-            if (productID== '0x05DC') USBasp(mcu);
+            if (productID == '0x0483') {
+              window.Bridge.statusAppend('\nUsing avrdude to flash avrisp');
+              avrisp(mcu);
+            }
+            if (productID == '0x05DC') {
+              window.Bridge.statusAppend('\nUsing avrdude to flash USBasp');
+              USBasp(mcu);
+            }
+            if (productID == '0x0486' || productID == '0x0478') {
+              window.Bridge.statusAppend('\nUsing Teensy loader to flash HalfKey');
+              tlc();
+            }
           }
           break;
         case 'usbtiny':
