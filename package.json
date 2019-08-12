@@ -43,6 +43,9 @@
         "zip"
       ]
     },
+    "deb": {
+      "depends": []
+    },
     "files": [
       "src/",
       "package.json"
