@@ -14,7 +14,7 @@ if (process.platform == 'win32') {
 }
 
 module.exports = {
-  atmelSamBa = () => {
+  atmelSamBa: async () => {
     SerialPort.list(async function(err, ports) {
       ports.forEach(async function(port) {
         if (vendorIDs.includes(port.vendorId)) {

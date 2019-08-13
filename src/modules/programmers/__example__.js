@@ -14,10 +14,10 @@ if (process.platform == 'win32') {
 }
 
 module.exports = {
-  COMMAND = () => {
+  COMMAND: async () => {
     const command = ``;
     const {stdout, stderr} = await exec(command);
     window.Bridge.statusAppend(`\n stdout: ${stdout}`);
     window.Bridge.statusAppend(`\n stderr: ${stderr}`);
-  }
-}
+  },
+};
