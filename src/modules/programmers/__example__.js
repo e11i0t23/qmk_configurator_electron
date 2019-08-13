@@ -17,7 +17,7 @@ module.exports = {
   COMMAND: async () => {
     const command = ``;
     const {stdout, stderr} = await exec(command);
-    window.Bridge.statusAppend(`\n stdout: ${stdout}`);
-    window.Bridge.statusAppend(`\n stderr: ${stderr}`);
+    window.Bridge.statusAppend(` stdout: ${stdout}`);
+    window.Bridge.statusAppend(` stderr: ${stderr}`);
   },
 };

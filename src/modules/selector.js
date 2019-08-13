@@ -66,10 +66,10 @@ function selector(processor) {
         case 'dfu-programmer':
           if (!flashing) {
             if (productID == 0x6124) {
-              window.Bridge.statusAppend('\n flashing atmel SamBa with mdloader');
+              window.Bridge.statusAppend(' flashing atmel SamBa with mdloader');
               atmelSamBa();
             } else {
-              window.Bridge.statusAppend('\nUsing DFU-Programmer');
+              window.Bridge.statusAppend('Using DFU-Programmer');
               setTimeout(dfuProgrammerFlash(productID, processor), 500);
             }
             flashing = true;
@@ -78,7 +78,7 @@ function selector(processor) {
         case 'caterina':
           if (!flashing) {
             flashing = true;
-            window.Bridge.statusAppend('\nUsing avrdude to flash caterina');
+            window.Bridge.statusAppend('Using avrdude to flash caterina');
             mcu = 'm32u4';
             caterina(mcu);
           }
@@ -88,15 +88,15 @@ function selector(processor) {
             flashing = true;
             mcu = 'm32u4';
             if (productID == '0x0483') {
-              window.Bridge.statusAppend('\nUsing avrdude to flash avrisp');
+              window.Bridge.statusAppend('Using avrdude to flash avrisp');
               avrisp(mcu);
             }
             if (productID == '0x05DC') {
-              window.Bridge.statusAppend('\nUsing avrdude to flash USBasp');
+              window.Bridge.statusAppend('Using avrdude to flash USBasp');
               USBasp(mcu);
             }
             if (productID == '0x0486' || productID == '0x0478') {
-              window.Bridge.statusAppend('\nUsing Teensy loader to flash HalfKey');
+              window.Bridge.statusAppend('Using Teensy loader to flash HalfKey');
               tlc();
             }
           }
@@ -104,7 +104,7 @@ function selector(processor) {
         case 'usbtiny':
           if (!flashing) {
             flashing = true;
-            window.Bridge.statusAppend('\nUsing avrdude to flash caterina');
+            window.Bridge.statusAppend('Using avrdude to flash caterina');
             mcu = 'm32u4';
             USBtiny(mcu);
           }
@@ -112,21 +112,21 @@ function selector(processor) {
         case 'dfu-util':
           if (!flashing) {
             flashing = true;
-            window.Bridge.statusAppend('\nUsing dfu-util to flash dfu');
+            window.Bridge.statusAppend('Using dfu-util to flash dfu');
             if (vendorID == 0x0483) stm32();
             if (vendorID == 0x1C11) kiibohd();
           }
           break;
         default:
           window.Bridge.statusAppend(
-              '\nProgrammer not yet implemented for this device'
+              'Programmer not yet implemented for this device'
           );
           break;
       }
       break;
     } else if (USBdevice == USBdevices[USBdevicesQTY - 1]) {
-      if (!window.Bridge.autoFlash) window.Bridge.statusAppend('\nERROR: No USB Device Found');
-      else window.Bridge.statusAppend('\nERROR: No USB Device Found Retrying in 5 secs');
+      if (!window.Bridge.autoFlash) window.Bridge.statusAppend('ERROR: No USB Device Found');
+      else window.Bridge.statusAppend('ERROR: No USB Device Found Retrying in 5 secs');
     }
   }
 };

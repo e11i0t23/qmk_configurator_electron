@@ -42,7 +42,7 @@ async function flashURL(url, keyboard, filename) {
  * Flash a custom file
  */
 async function flashFile() {
-  window.Bridge.statusAppend('----STARTING FLASHING PROCEDURES----\n');
+  window.Bridge.statusAppend('----STARTING FLASHING PROCEDURES----');
   dialog.showOpenDialog(process.win, {
     filters: [{name: '.bin, .hex', extensions: ['bin', 'hex']}],
     properties: ['openFile'],

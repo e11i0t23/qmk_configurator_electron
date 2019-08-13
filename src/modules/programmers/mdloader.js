@@ -21,8 +21,8 @@ module.exports = {
           CaterinaPort = port.comName;
           const command = `${mdloader} -p ${CaterinaPort} -D ${window.inputPath}`;
           const {stdout, stderr} = await exec(command);
-          window.Bridge.statusAppend(`\n stdout: ${stdout}`);
-          window.Bridge.statusAppend(`\n stderr: ${stderr}`);
+          window.Bridge.statusAppend(` stdout: ${stdout}`);
+          window.Bridge.statusAppend(` stderr: ${stderr}`);
           break;
         }
       });

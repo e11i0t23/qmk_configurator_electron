@@ -20,8 +20,8 @@ async function flash(command, vendorIDs) {
         CaterinaPort = port.comName;
         const command = `${command} -P ${CaterinaPort}`;
         const {stdout, stderr} = await exec(command);
-        window.Bridge.statusAppend(`\n stdout: ${stdout}`);
-        window.Bridge.statusAppend(`\n stderr: ${stderr}`);
+        window.Bridge.statusAppend(` stdout: ${stdout}`);
+        window.Bridge.statusAppend(` stderr: ${stderr}`);
         break;
       }
     });

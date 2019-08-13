@@ -80,7 +80,7 @@ const handler = (productID, _processor) => {
             resetChip().then(() => {
               console.log(`flashing finnished`);
               window.Bridge.statusAppend(
-                  '\n \n Successfully Flashed Keymap onto device'
+                  '  Successfully Flashed Keymap onto device'
               );
             });
           });
@@ -88,7 +88,7 @@ const handler = (productID, _processor) => {
       } else if (i == atmelDevices[productID].length - 1) {
         if (!found) {
           window.Bridge.statusAppend(
-              '\nPlease connect the Keyboard and enter reset'
+              'Please connect the Keyboard and enter reset'
           );
         }
       }
@@ -108,9 +108,9 @@ function eraseChip() {
     if (process.platform == `win32`) {
       command = `${dfuProgrammer} ${DFUdevice} erase --force`;
     } else command = `${dfuProgrammer} ${DFUdevice} erase`;
-    const regex = /.*Success.*\r?\n|\rChecking memory from .* Empty.*/;
+    const regex = /.*Success.*\r?|\rChecking memory from .* Empty.*/;
     const {stderr} = await exec(command);
-    window.Bridge.statusAppend(`\n ${stderr}`);
+    window.Bridge.statusAppend(` ${stderr}`);
     if (regex.test(stderr) || stderr.includes('Chip already blank')) {
       resolve(true);
     } else {
@@ -130,7 +130,7 @@ function flashChip() {
   return new Promise(async (resolve, reject) => {
     command = `${dfuProgrammer} ${DFUdevice} flash ${window.inputPath}`;
     const {stderr} = await exec(command);
-    window.Bridge.statusAppend(`\n ${stderr}`);
+    window.Bridge.statusAppend(` ${stderr}`);
     if (stderr.indexOf('Validating...  Success') > -1) resolve(true);
     else {
       window.Bridge.statusAppend('Flashing Failed');
@@ -148,7 +148,7 @@ function resetChip() {
   return new Promise(async (resolve, reject) => {
     command = `${dfuProgrammer} ${DFUdevice} reset`;
     const {stderr} = await exec(command);
-    window.Bridge.statusAppend(`\n ${stderr}`);
+    window.Bridge.statusAppend(` ${stderr}`);
     if (stderr == '') resolve(true);
     else {
       window.Bridge.statusAppend('Reset Failed');
