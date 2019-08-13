@@ -38,15 +38,39 @@ let DFUdevice = '';
  * @param {string} processor processor submitted from api
  * @module programmers/dfuProgrammer
  */
-function dfuProgrammerFlash(productID, processor) {
+async function dfuProgrammerFlash(productID, processor) {
+  if (processor) handler(productID, processor);
+  else {
+    prompt({
+      title: 'Processor',
+      label: 'Please submit processor',
+      height: 150,
+      value: 'atmega32u4',
+    })
+        .then((r) => {
+          if (r === null) {
+            window.Bridge.statusAppend('No selection made flashing cancelled');
+          } else {
+            handler(productID, r);
+          }
+        })
+        .catch(console.error);
+  }
+}
+
+module.exports = {
+  dfuProgrammerFlash,
+};
+
+const handler = (productID, _processor) => {
   console.log('processor: ', processor);
   found = false;
   if (Object.keys(atmelDevices).includes(productID)) {
     console.log(atmelDevices[productID]);
     for (let i = 0; i < atmelDevices[productID].length; i++) {
       dev = atmelDevices[productID][i];
-      if ((processor == dev) & (found == false)) {
-        DFUdevice = processor;
+      if ((_processor == dev) & (found == false)) {
+        DFUdevice = _processor;
         found = true;
         window.Bridge.statusAppend(`Found USB Device ${DFUdevice}`);
         eraseChip().then(() => {
@@ -70,11 +94,8 @@ function dfuProgrammerFlash(productID, processor) {
       }
     }
   }
-}
-
-module.exports = {
-  dfuProgrammerFlash,
 };
+
 
 /**
  * Erase data from mcu

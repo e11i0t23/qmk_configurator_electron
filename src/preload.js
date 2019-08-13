@@ -1,7 +1,7 @@
 // in preload scripts, we have access to node.js and electron APIs
 // the remote web app will not have access, so this is safe
 const {ipcRenderer: ipc, remote} = require('electron');
-const {flashURL} = require('./flash');
+const {flashURL, flashFile} = require('./flash');
 
 init();
 /**
@@ -18,6 +18,7 @@ function init() {
   window.Bridge = {
     setDockBadge: setDockBadge,
     flashURL: flashURL,
+    flashFile: flashFile,
     autoFlash: Boolean,
   };
 

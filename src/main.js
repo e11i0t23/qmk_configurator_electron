@@ -18,6 +18,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
     },
   });
+  process.win = win;
   win.loadURL('http://localhost:8080');
   // win.loadFile('./dist/index.html')
   if (process.defaultApp) {
@@ -86,3 +87,4 @@ autoUpdater.on('update-downloaded', (info) => {
 app.on('ready', function() {
   autoUpdater.checkForUpdatesAndNotify();
 });
+

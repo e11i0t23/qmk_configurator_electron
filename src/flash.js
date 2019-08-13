@@ -3,6 +3,7 @@ const path = require('path');
 const selector = require('./modules/selector');
 const https = require('follow-redirects').https;
 const fs = require('fs');
+const {dialog} = require('electron').remote;
 
 temp.track();
 
@@ -37,8 +38,23 @@ async function flashURL(url, keyboard, filename) {
   });
 }
 
-async function
+/**
+ * Flash a custom file
+ */
+async function flashFile() {
+  dialog.showOpenDialog(process.win, {
+    filters: [{name: '.bin, .hex', extensions: ['bin', 'hex']}],
+    properties: ['openFile'],
+  }, (filenames) =>{
+    if (filenames.length == 1) {
+      console.log(filenames);
+      window.inputPath = filenames[0];
+      selector.routes();
+    } else window.Bridge.statusAppend('\n Flash Cancelled');
+  });
+}
 
 module.exports = {
   flashURL,
+  flashFile,
 };

@@ -22,24 +22,29 @@ let flashing = false;
 /**
  * Calls API for processor the calls selector (repeatedly if autoflash)
  * @param {String} keyboard Takes a keyboard name from configurator
+ * @param {String} processor Takes a processor name from form
  * @member selector
  */
-function routes(keyboard) {
+function routes(keyboard, processor) {
   console.log(keyboard);
-  fetch('http://api.qmk.fm/v1/keyboards/' + keyboard)
-      .then((res) => res.json())
-      .then((data) => data.keyboards[keyboard].processor)
-      .then((processor) => {
-        flashing = false;
-        selector(processor);
-        console.log('Auto Flash: ', window.Bridge.autoFlash);
-        if (window.Bridge.autoFlash) {
-          while (!flashing) {
-            setTimeout(selector(processor), 1500);
+  window.Bridge.autoFlash = false;
+  if (keyboard != null) {
+    window.Bridge.autoFlash = true;
+    fetch('http://api.qmk.fm/v1/keyboards/' + keyboard)
+        .then((res) => res.json())
+        .then((data) => data.keyboards[keyboard].processor)
+        .then((processor) => {
+          flashing = false;
+          selector(processor);
+          console.log('Auto Flash: ', window.Bridge.autoFlash);
+          if (window.Bridge.autoFlash) {
+            while (!flashing) {
+              setTimeout(selector(processor), 5000);
+            }
           }
-        }
-      })
-      .catch((err) => console.error(err));
+        })
+        .catch((err) => console.error(err));
+  } else selector();
 }
 
 module.exports = {routes};
@@ -122,9 +127,8 @@ function selector(processor) {
       }
       break;
     } else if (USBdevice == USBdevices[USBdevicesQTY - 1]) {
-      if (!window.Bridge.autoFlash) {
-        window.Bridge.statusAppend('\nERROR: No USB Device Found');
-      }
+      if (!window.Bridge.autoFlash) window.Bridge.statusAppend('\nERROR: No USB Device Found');
+      else window.Bridge.statusAppend('\nERROR: No USB Device Found Retrying in 5 secs');
     }
   }
 };
