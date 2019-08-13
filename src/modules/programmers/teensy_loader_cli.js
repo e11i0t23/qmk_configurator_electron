@@ -3,11 +3,13 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const prompt = require('electron-prompt');
 
-let teensy = path.resolve('programmers', './teensy_loader_cli');
-
 if (process.platform == 'win32') {
-  teensy = teensy + '.exe';
+  teensy = path.resolve('programmers', './teensy_loader_cli.exe');
   console.log(teensy);
+} else if (process.platform == 'darwin') {
+  teensy = path.resolve('programmers', './teensy_loader_cli');
+} else {
+  teensy = 'teensy_loader_cli';
 }
 
 module.exports = {

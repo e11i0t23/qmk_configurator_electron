@@ -2,11 +2,15 @@ const path = require('path');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-let avrdude = path.resolve('programmers', './avrdude');
+let avrdude;
 
 if (process.platform == 'win32') {
-  avrdude = avrdude + '.exe';
+  avrdude = path.resolve('programmers', './avrdude.exe');
   console.log(avrdude);
+} else if (process.platform == 'darwin') {
+  avrdude = path.resolve('programmers', './avrdude');
+} else {
+  avrdude = 'avrdude';
 }
 
 async function flash(command, vendorIDs) {

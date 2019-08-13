@@ -30,8 +30,9 @@
     },
     "linux": {
       "target": [
-        "AppImage",
         "deb",
+        "apk",
+        "pacman",
         "tar.xz"
       ]
     },
@@ -44,7 +45,13 @@
       ]
     },
     "deb": {
-      "depends": []
+      "depends": ["dfu-programmer", "dfu-util", "teensy-loader-cli", "avrdude"]
+    },
+    "apk": {
+      "depends": ["dfu-programmer", "dfu-util", "teensy-loader-cli", "avrdude"]
+    },
+    "pacman": {
+      "depends": ["dfu-programmer", "dfu-util", "teensy-loader-cli", "avrdude"]
     },
     "files": [
       "src/",

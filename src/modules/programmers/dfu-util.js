@@ -2,11 +2,15 @@ const path = require('path');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-let dfuUtil = path.resolve('programmers', './dfu-util');
+let dfuUtil;
 
 if (process.platform == 'win32') {
-  dfuUtil = dfuUtil + '.exe';
+  dfuUtil = path.resolve('programmers', './dfu-util.exe');
   console.log(dfuUtil);
+} else if (process.platform == 'darwin') {
+  dfuUtil = path.resolve('programmers', './dfu-util');
+} else {
+  dfuUtil = 'dfu-util';
 }
 
 module.exports = {

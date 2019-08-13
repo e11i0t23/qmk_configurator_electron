@@ -19,11 +19,15 @@ const atmelDevices = {
   12287: ['at89c5132', 'at89c5snd1c'],
 };
 
-let dfuProgrammer = path.resolve('programmers', './dfu-programmer');
+let dfuProgrammer;
 
 if (process.platform == 'win32') {
-  dfuProgrammer = dfuProgrammer + '.exe';
+  dfuProgrammer = path.resolve('programmers', './dfu-programmer.exe');
   console.log(dfuProgrammer);
+} else if (process.platform == 'darwin') {
+  dfuProgrammer = path.resolve('programmers', './dfu-programmer');
+} else {
+  dfuProgrammer = 'dfu-programmer';
 }
 
 let DFUdevice = '';
