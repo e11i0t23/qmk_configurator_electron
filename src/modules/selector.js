@@ -2,6 +2,7 @@ const {dfuProgrammerFlash} = require('./programmers/dfu-programmer');
 const {stm32, kiibohd} = require('./programmers/dfu-util');
 const {caterina, avrisp, USBtiny, USBasp} = require('./programmers/avrdude');
 const {tlc} = require('./programmers/teensy_loader_cli');
+const {atmelSamBa} = require('./programmers/mdloader');
 
 const usb = require('usb');
 
@@ -61,8 +62,13 @@ function selector(processor) {
       switch (programmer) {
         case 'dfu-programmer':
           if (!flashing) {
-            window.Bridge.statusAppend('\nUsing DFU-Programmer');
-            setTimeout(dfuProgrammerFlash(productID, processor), 500);
+            if (productID == 0x6124) {
+              window.Bridge.statusAppend('\n flashing atmel SamBa with mdloader');
+              atmelSamBa();
+            } else {
+              window.Bridge.statusAppend('\nUsing DFU-Programmer');
+              setTimeout(dfuProgrammerFlash(productID, processor), 500);
+            }
             flashing = true;
           }
           break;
