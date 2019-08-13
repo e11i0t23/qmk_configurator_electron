@@ -20,8 +20,10 @@ function init() {
     flashURL: flashURL,
     flashFile: flashFile,
     autoFlash: Boolean,
+    enableFlashing: Boolean,
   };
 
+  window.Bridge.enableFlashing = true;
   // we get this message from the main process
   ipc.on('markAllComplete', () => {
     // the todo app defines this function

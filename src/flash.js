@@ -18,7 +18,7 @@ async function flashURL(url, keyboard, filename) {
   console.log(url, keyboard, filename);
   temp.mkdir('qmkconfigurator', function(err, dirPath) {
     window.tempFolder = dirPath;
-    window.Bridge.statusAppend('\n\n ----STARTING FLASHING PROCEDURES----\n');
+    window.Bridge.statusAppend('----STARTING FLASHING PROCEDURES----');
     window.inputPath = path.join(dirPath, filename);
     console.log(window.inputPath);
     pipeFile = fs.createWriteStream(window.inputPath);
@@ -42,6 +42,7 @@ async function flashURL(url, keyboard, filename) {
  * Flash a custom file
  */
 async function flashFile() {
+  window.Bridge.statusAppend('----STARTING FLASHING PROCEDURES----\n');
   dialog.showOpenDialog(process.win, {
     filters: [{name: '.bin, .hex', extensions: ['bin', 'hex']}],
     properties: ['openFile'],
@@ -50,7 +51,7 @@ async function flashFile() {
       console.log(filenames);
       window.inputPath = filenames[0];
       selector.routes();
-    } else window.Bridge.statusAppend('\n Flash Cancelled');
+    } else window.Bridge.statusAppend('Flash Cancelled');
   });
 }
 

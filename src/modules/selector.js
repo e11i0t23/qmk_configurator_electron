@@ -17,8 +17,6 @@ const deviceIDs = {
   0x1781: 'usbtiny',
 };
 
-let flashing = false;
-
 /**
  * Calls API for processor the calls selector (repeatedly if autoflash)
  * @param {String} keyboard Takes a keyboard name from configurator
