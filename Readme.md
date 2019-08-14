@@ -41,7 +41,15 @@ yarn run dist
     ├──main.js  (main file invoked by electron)  
     └──preload.js  (shares code between electron and vue)  
 ```
-### Programmers 
-dfu-programmer (atmel devices atmega32u4 ect)
-dfu-util  (stm32, Kiibohd)
-avrdude (pro micro)  
+
+### Supporting following bootloaders:
+  - DFU (Atmel, LUFA) via [dfu-programmer](http://dfu-programmer.github.io/)
+  - Caterina (Arduino, Pro Micro) via [avrdude](http://nongnu.org/avrdude/)
+  - Halfkay (Teensy, Ergodox EZ) via [teensy_loader_cli](https://pjrc.com/teensy/loader_cli.html)
+  - STM32 (ARM) via [dfu-util](http://dfu-util.sourceforge.net/)
+  - Kiibohd (ARM) via [dfu-util](http://dfu-util.sourceforge.net/)
+  - Massdrop via [mdloader](https://github.com/Massdrop/mdloader)  
+
+### And the following ISP flasher protocols:
+  - USBTiny (AVR Pocket) via [avrdude](http://nongnu.org/avrdude/)
+  - AVRISP (Arduino ISP) via [avrdude](http://nongnu.org/avrdude/)
