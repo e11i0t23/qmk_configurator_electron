@@ -45,13 +45,16 @@
       ]
     },
     "deb": {
-      "depends": ["dfu-programmer", "dfu-util", "teensy-loader-cli", "avrdude"]
+      "depends": ["dfu-programmer", "dfu-util", "teensy-loader-cli", "avrdude"],
+      "fpm": ["--after-upgrade=build/postinstall.sh"]
     },
     "apk": {
-      "depends": ["dfu-programmer", "dfu-util", "teensy-loader-cli", "avrdude"]
+      "depends": ["dfu-programmer", "dfu-util", "teensy-loader-cli", "avrdude"],
+      "fpm": ["--after-upgrade=build/postinstall.sh"]
     },
     "pacman": {
-      "depends": ["dfu-programmer", "dfu-util", "teensy-loader-cli", "avrdude"]
+      "depends": ["dfu-programmer", "dfu-util", "teensy-loader-cli", "avrdude"],
+      "fpm": ["--after-upgrade=build/postinstall.sh"]
     },
     "files": [
       "src/",
