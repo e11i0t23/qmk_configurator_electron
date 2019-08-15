@@ -41,21 +41,20 @@
       "icon": "build/icon.ico",
       "target": [
         "portable",
-        "nsis",
-        "zip"
+        "nsis"
       ]
     },
     "deb": {
       "depends": ["dfu-programmer", "dfu-util", "teensy-loader-cli", "avrdude"],
-      "fpm": ["--after-upgrade=build/postinstall.sh"]
+      "afterInstall": "./build/postinstall.sh"
     },
     "apk": {
       "depends": ["dfu-programmer", "dfu-util", "teensy-loader-cli", "avrdude"],
-      "fpm": ["--after-upgrade=build/postinstall.sh"]
+      "afterInstall": "./build/postinstall.sh"
     },
     "pacman": {
       "depends": ["dfu-programmer", "dfu-util", "teensy-loader-cli", "avrdude"],
-      "fpm": ["--after-upgrade=build/postinstall.sh"]
+      "afterInstall": "./build/postinstall.sh"
     },
     "files": [
       "src/",
