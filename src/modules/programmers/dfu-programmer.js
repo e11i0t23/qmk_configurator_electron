@@ -63,7 +63,7 @@ module.exports = {
 };
 
 const handler = (productID, _processor) => {
-  console.log('processor: ', processor);
+  console.log('processor: ', _processor);
   found = false;
   if (Object.keys(atmelDevices).includes(productID)) {
     console.log(atmelDevices[productID]);
