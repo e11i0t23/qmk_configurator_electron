@@ -19,7 +19,7 @@ function createWindow() {
     },
   });
   process.win = win;
-  win.loadURL('http://localhost:8080');
+  win.loadURL('https://config.qmk.fm');
   // win.loadFile('./dist/index.html')
   if (process.defaultApp) {
     win.webContents.openDevTools();
