@@ -16,11 +16,16 @@ if (process.platform == 'win32') {
 module.exports = {
   stm32: async () => {
     f = window.inputPath;
-    if (f.substr(f.length, -4) == '.bin') {
-      const command = `${dfuUtil} -a 0 -d 0483:df11 -s 0x08000000:leave -D ${f}`;
-      const {stdout, stderr} = await exec(command);
-      window.Bridge.statusAppend(` stdout: ${stdout}`);
-      window.Bridge.statusAppend(` stderr: ${stderr}`);
+    console.log(f.split('.').pop())
+    if (f.split('.').pop() == 'bin') {
+      const command = `${dfuUtil} -a 0 -d 0483:df11 -s 0x08000000:leave -D \"${f}"\ `;
+      try {
+        const {stdout, stderr} = await exec(command);
+        window.Bridge.statusAppend(` stdout: ${stdout}`);
+        window.Bridge.statusAppend(` stderr: ${stderr}`);
+      } catch (error) {
+        window.Bridge.statusAppend(` error: ${error}`);
+      }
     } else {
       window.Bridge.statusAppend(` Err: dfu-util only works with .bin files`);
     }
@@ -28,11 +33,15 @@ module.exports = {
 
   kiibohd: async () => {
     f = window.inputPath;
-    if (f.substr(f.length, -4) == '.bin') {
-      const command = `${dfuUtil} -D ${f}`;
-      const {stdout, stderr} = await exec(command);
-      window.Bridge.statusAppend(` stdout: ${stdout}`);
-      window.Bridge.statusAppend(` stderr: ${stderr}`);
+    if (f.split('.').pop() == 'bin') {
+      const command = `${dfuUtil} -D \"${f}"\ `;
+      try {
+        const {stdout, stderr} = await exec(command);
+        window.Bridge.statusAppend(` stdout: ${stdout}`);
+        window.Bridge.statusAppend(` stderr: ${stderr}`);
+      } catch (error) {
+        window.Bridge.statusAppend(` error: ${error}`);
+      }
     } else {
       window.Bridge.statusAppend(` Err: dfu-util only works with .bin files`);
     }
