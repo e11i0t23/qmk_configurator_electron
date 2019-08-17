@@ -16,6 +16,7 @@ const deviceIDs = {
   0x16C0: 'avrisp/usbasp',
   0x1781: 'usbtiny',
 };
+let flashing;
 
 /**
  * Calls API for processor the calls selector (repeatedly if autoflash)
@@ -26,6 +27,7 @@ const deviceIDs = {
 function routes(keyboard, processor) {
   console.log(keyboard);
   window.Bridge.autoFlash = false;
+  flashing = false;
   if (keyboard != null) {
     window.Bridge.autoFlash = true;
     fetch('http://api.qmk.fm/v1/keyboards/' + keyboard)

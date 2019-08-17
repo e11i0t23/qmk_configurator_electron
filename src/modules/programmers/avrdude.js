@@ -1,8 +1,12 @@
 const path = require('path');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+const SerialPort = require('serialport')
+const prompt = require('electron-prompt');
 
 let avrdude;
+let command;
+let vendorIDs;
 
 if (process.platform == 'win32') {
   avrdude = path.resolve('programmers', './avrdude.exe');
@@ -13,40 +17,69 @@ if (process.platform == 'win32') {
   avrdude = 'avrdude';
 }
 
-async function flash(command, vendorIDs) {
+async function flash() {
   SerialPort.list(async function(err, ports) {
+    console.log(ports)
     ports.forEach(async function(port) {
+      console.log(port.vendorId)
       if (vendorIDs.includes(port.vendorId)) {
         CaterinaPort = port.comName;
-        const command = `${command} -P ${CaterinaPort}`;
+        command = `${command} -P ${CaterinaPort}`;
         const {stdout, stderr} = await exec(command);
         window.Bridge.statusAppend(` stdout: ${stdout}`);
         window.Bridge.statusAppend(` stderr: ${stderr}`);
-        break;
+      }else if (port == ports[ports.length - 1] ){
+        window.Bridge.statusAppend('No Com Port Found');
       }
     });
   });
 }
 
-module.export = {
+module.exports = {
   caterina: async (mcu) =>{
-    vendorIDs = [0x2341, 0x1B4F, 0x239a]
-    command = `${avrdude} -p ${mcu} -c avr109 -U flash:w:${window.inputPath}:i`;
-    flash(command, vendorIDs)
+    vendorIDs = ['2341', '1B4F', '239a']
+    command =  `${avrdude} -p ${mcu} -c avr109 -U flash:w:\"${window.inputPath}"\:i`;
+    flash()
   },
   avrisp: async (mcu) =>{
-    vendorIDs = [0x16C0]
-    command = `${avrdude} -p ${mcu} -c avrisp -U flash:w:${window.inputPath}:i`
-    flash(command, vendorIDs)
+    vendorIDs = ['16C0']
+    command = `${avrdude} -p ${mcu} -c avrisp -U flash:w:\"${window.inputPath}"\:i`
+    flash()
   },
   USBasp: async () =>{
-    vendorIDs = [0x16C0]
-    command = `${avrdude} -p ${mcu} -c usbasp -U flash:w:${window.inputPath}:i`
-    flash(command, vendorIDs)
+    prompt({
+      title: 'Processor',
+      label: 'Please submit processor',
+      height: 150,
+      value: 'atmega32u4',
+    })
+        .then((r) => {
+          if (r === null) {
+            window.Bridge.statusAppend('No selection made flashing cancelled');
+          } else {
+            command = `${avrdude} -p ${r} -c usbasp -U flash:w:\"${window.inputPath}"\:i`
+            flash()
+          }
+        })
+        .catch(console.error);
   },
   USBtiny: async () =>{
-    vendorIDs = [0x1781]
-    command = `${avrdude} -p ${mcu} -c usbtiny -U flash:w:${window.inputPath}:i`
-    flash(command, vendorIDs)
+    prompt({
+      title: 'Processor',
+      label: 'Please submit processor',
+      height: 150,
+      value: 'atmega32u4',
+    })
+        .then((r) => {
+          if (r === null) {
+            window.Bridge.statusAppend('No selection made flashing cancelled');
+          } else {
+            vendorIDs = ['1781']
+            command = `${avrdude} -p ${r} -c usbtiny -U flash:w:\"${window.inputPath}"\:i`
+            flash()
+          }
+        })
+        .catch(console.error);
+
   },
 };
