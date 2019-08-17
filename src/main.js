@@ -16,6 +16,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       preload: path.join(__dirname, 'preload.js'),
+      allowRunningInsecureContent: true
     },
   });
   process.win = win;
