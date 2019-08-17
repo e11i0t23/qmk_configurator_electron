@@ -111,7 +111,7 @@ function eraseChip() {
     const regex = /.*Success.*\r?|\rChecking memory from .* Empty.*/;
     const {stderr} = await exec(command);
     window.Bridge.statusAppend(` ${stderr}`);
-    if (regex.test(stderr) || stderr.includes('Chip already blank')) {
+    if (regex.test(stderr) || stderr.includes('Chip already blank') || stderr =='') {
       resolve(true);
     } else {
       window.Bridge.statusAppend('Erase Failed');
@@ -131,7 +131,7 @@ function flashChip() {
     command = `${dfuProgrammer} ${DFUdevice} flash ${window.inputPath}`;
     const {stderr} = await exec(command);
     window.Bridge.statusAppend(` ${stderr}`);
-    if (stderr.indexOf('Validating...  Success') > -1) resolve(true);
+    if (stderr.includes('Validating...  Success') || stderr.includes(" bytes used (")) resolve(true);
     else {
       window.Bridge.statusAppend('Flashing Failed');
       reject(new Error('Flash Failed'));
