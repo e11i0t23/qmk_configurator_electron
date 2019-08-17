@@ -14,6 +14,7 @@ SUBSYSTEMS=="usb", ATTRS{idVendor}=="1c11", MODE:="0666"
 # ModemManager should ignore the following devices for caterlina
 ATTRS{idVendor}=="2a03", ENV{ID_MM_DEVICE_IGNORE}="1"
 ATTRS{idVendor}=="2341", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="239a", ENV{ID_MM_DEVICE_IGNORE}="1"
 
 # stm32duino
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="1eaf", ATTRS{idProduct}=="0003", MODE:="0666"
@@ -37,3 +38,6 @@ KERNEL=="ttyACM*", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="04[789B]?", MODE:
 sed -i 's/--filter-policy=strict/--filter-policy=default/' /lib/systemd/system/ModemManager.service
 systemctl daemon-reload
 systemctl restart ModemManager
+
+udevadm control --reload-rules
+udevadm trigger
