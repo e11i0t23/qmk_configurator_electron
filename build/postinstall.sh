@@ -12,9 +12,9 @@ SUBSYSTEMS=="usb", ATTRS{idVendor}=="feed", MODE:="0666"
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="1c11", MODE:="0666"
 
 # ModemManager should ignore the following devices for caterlina
-ATTRS{idVendor}=="2a03", ENV{ID_MM_DEVICE_IGNORE}="1"
-ATTRS{idVendor}=="2341", ENV{ID_MM_DEVICE_IGNORE}="1"
-ATTRS{idVendor}=="239a", ENV{ID_MM_DEVICE_IGNORE}="1"
+ATTRS{idVendor}=="2a03", ENV{ID_MM_DEVICE_IGNORE}="1", MODE:="0666"
+ATTRS{idVendor}=="2341", ENV{ID_MM_DEVICE_IGNORE}="1", MODE:="0666"
+ATTRS{idVendor}=="239a", ENV{ID_MM_DEVICE_IGNORE}="1", MODE:="0666"
 
 # stm32duino
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="1eaf", ATTRS{idProduct}=="0003", MODE:="0666"
