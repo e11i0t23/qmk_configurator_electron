@@ -1,7 +1,7 @@
-import { app, BrowserWindow } from "electron";
-import log from "electron-log";
-import { autoUpdater } from "electron-updater";
-import * as path from "path";
+import {app, BrowserWindow} from 'electron';
+import log from 'electron-log';
+import {autoUpdater} from 'electron-updater';
+import * as path from 'path';
 
 let win: Electron.BrowserWindow; // Global ref og window object
 // const HIDListen = require('hid-listen');
@@ -16,21 +16,21 @@ function createWindow() {
     webPreferences: {
       allowRunningInsecureContent: true,
       nodeIntegration: false,
-      preload: path.join(__dirname, "preload.js"),
+      preload: path.join(__dirname, 'preload.js'),
     },
     width: 1200,
   });
   // process.win = win;
-  win.loadURL("https://config.qmk.fm");
+  win.loadURL('https://config.qmk.fm');
   // win.loadFile('./dist/index.html')
   if (process.defaultApp) {
     win.webContents.openDevTools();
   }
   // Emitted when the window is closed.
-  win.on("closed", () => {
+  win.on('closed', () => {
     win = null;
   });
-  log.info("opening app");
+  log.info('opening app');
 }
 
 /**
@@ -39,24 +39,24 @@ function createWindow() {
  */
 function sendStatusToWindow(text: string) {
   log.info(text);
-  win.webContents.send("message", text);
+  win.webContents.send('message', text);
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on("ready", createWindow);
+app.on('ready', createWindow);
 
 // Quit when all windows are closed.
-app.on("window-all-closed", () => {
+app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== "darwin") {
+  if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
-app.on("activate", () => {
+app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (win === null) {
@@ -64,28 +64,28 @@ app.on("activate", () => {
   }
 });
 
-autoUpdater.on("checking-for-update", () => {
-  sendStatusToWindow("Checking for update...");
+autoUpdater.on('checking-for-update', () => {
+  sendStatusToWindow('Checking for update...');
 });
-autoUpdater.on("update-available", () => {
-  sendStatusToWindow("Update available.");
+autoUpdater.on('update-available', () => {
+  sendStatusToWindow('Update available.');
 });
-autoUpdater.on("update-not-available", () => {
-  sendStatusToWindow("Update not available.");
+autoUpdater.on('update-not-available', () => {
+  sendStatusToWindow('Update not available.');
 });
-autoUpdater.on("error", (err: string) => {
+autoUpdater.on('error', (err: string) => {
   sendStatusToWindow(`Error in auto-updater. ${err}`);
 });
-autoUpdater.on("download-progress", (progressObj) => {
+autoUpdater.on('download-progress', (progressObj) => {
   const logMessage = [`Download speed: ${progressObj.bytesPerSecond}`];
   logMessage.push(` - Downloaded ${progressObj.percent}%`);
   logMessage.push(` (${progressObj.transferred}/${progressObj.total})`);
-  sendStatusToWindow(logMessage.join(""));
+  sendStatusToWindow(logMessage.join(''));
 });
-autoUpdater.on("update-downloaded", (info) => {
-  sendStatusToWindow("Update downloaded");
+autoUpdater.on('update-downloaded', (info) => {
+  sendStatusToWindow('Update downloaded');
 });
 
-app.on("ready", () => {
+app.on('ready', () => {
   autoUpdater.checkForUpdatesAndNotify();
 });
