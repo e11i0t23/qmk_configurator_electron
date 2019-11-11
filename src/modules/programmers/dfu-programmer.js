@@ -41,7 +41,6 @@ let DFUdevice = '';
  * @module programmers/dfuProgrammer
  */
 function dfuProgrammerFlash(productID, processor) {
-  debugger;
   if (processor) {
     handler(productID, processor);
   } else {
