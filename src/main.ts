@@ -74,12 +74,12 @@ autoUpdater.on("update-not-available", () => {
   sendStatusToWindow("Update not available.");
 });
 autoUpdater.on("error", (err: string) => {
-  sendStatusToWindow("Error in auto-updater. " + err);
+  sendStatusToWindow(`Error in auto-updater. ${err}`);
 });
 autoUpdater.on("download-progress", (progressObj) => {
-  const logMessage = ["Download speed: ", progressObj.bytesPerSecond];
-  logMessage.push(" - Downloaded ", progressObj.percent + "%");
-  logMessage.push(" (", progressObj.transferred, "/", progressObj.total, ")");
+  const logMessage = [`Download speed: ${progressObj.bytesPerSecond}`];
+  logMessage.push(` - Downloaded ${progressObj.percent}%`);
+  logMessage.push(` (${progressObj.transferred}/${progressObj.total})`);
   sendStatusToWindow(logMessage.join(""));
 });
 autoUpdater.on("update-downloaded", (info) => {
