@@ -1,6 +1,7 @@
 const path = require('path');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+const prompt = require('electron-prompt');
 
 const atmelDevices = {
   12270: ['atmega8u2'],
