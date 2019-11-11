@@ -18,23 +18,23 @@ async function flashURL(url, keyboard, filename) {
   console.log(url, keyboard, filename);
   temp.mkdir('qmkconfigurator', function(err, dirPath) {
     window.tempFolder = dirPath;
-    window.Bridge.statusAppend('----STARTING FLASHING PROCEDURES----');
+    window.Bridge.statusAppend('----STARTING URL FLASHING PROCEDURES----');
     window.inputPath = path.join(dirPath, filename);
     console.log(window.inputPath);
     pipeFile = fs.createWriteStream(window.inputPath);
     https
-        .get(url, function(response) {
-          response.pipe(pipeFile);
-          pipeFile.on('finish', function() {
-            console.log('finish downloads');
-            selector.routes(keyboard);
-            pipeFile.close();
-          });
-        })
-        .on('error', function(err) {
-        // Handle errors
-          fs.unlink(imputPath); // Delete the file async. (But we don't check the result)
+      .get(url, function(response) {
+        response.pipe(pipeFile);
+        pipeFile.on('finish', function() {
+          console.log('finish downloads');
+          selector.routes(keyboard);
+          pipeFile.close();
         });
+      })
+      .on('error', function(err) {
+        // Handle errors
+        fs.unlink(imputPath); // Delete the file async. (But we don't check the result)
+      });
   });
 }
 
@@ -42,17 +42,23 @@ async function flashURL(url, keyboard, filename) {
  * Flash a custom file
  */
 async function flashFile() {
-  window.Bridge.statusAppend('----STARTING FLASHING PROCEDURES----');
-  dialog.showOpenDialog(process.win, {
-    filters: [{name: '.bin, .hex', extensions: ['bin', 'hex']}],
-    properties: ['openFile'],
-  }, (filenames) =>{
-    if (filenames.length == 1) {
-      console.log(filenames);
-      window.inputPath = filenames[0];
-      selector.routes();
-    } else window.Bridge.statusAppend('Flash Cancelled');
-  });
+  window.Bridge.statusAppend('----STARTING FILE FLASHING PROCEDURES----');
+  dialog
+    .showOpenDialog(process.win, {
+      filters: [{name: '.bin, .hex', extensions: ['bin', 'hex']}],
+      properties: ['openFile'],
+    })
+    .then(({canceled, filePaths, bookmarks}) => {
+      if (canceled) {
+        window.Bridge.statusAppend('Flash Cancelled');
+        return;
+      }
+      if (filePaths.length === 1) {
+        console.log(filePaths);
+        window.inputPath = filePaths[0];
+        selector.routes();
+      }
+    });
 }
 
 module.exports = {

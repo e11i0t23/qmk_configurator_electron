@@ -9,11 +9,11 @@ const usb = require('usb');
 const deviceIDs = {
   0x03eb: 'dfu-programmer', // Atmel vendor id
   0x2341: 'caterina', // Arduino vendor id
-  0x1B4F: 'caterina', // Sparkfun vendor id
+  0x1b4f: 'caterina', // Sparkfun vendor id
   0x239a: 'caterina', // adafruit vendor id
   0x0483: 'dfu-util',
-  0x1C11: 'dfu-util',
-  0x16C0: 'avrisp/usbasp',
+  0x1c11: 'dfu-util',
+  0x16c0: 'avrisp/usbasp',
   0x1781: 'usbtiny',
 };
 let flashing;
@@ -31,19 +31,19 @@ function routes(keyboard, processor) {
   if (keyboard != null) {
     window.Bridge.autoFlash = true;
     fetch('http://api.qmk.fm/v1/keyboards/' + keyboard)
-        .then((res) => res.json())
-        .then((data) => data.keyboards[keyboard].processor)
-        .then((processor) => {
-          flashing = false;
-          selector(processor);
-          console.log('Auto Flash: ', window.Bridge.autoFlash);
-          if (window.Bridge.autoFlash) {
-            while (!flashing) {
-              setTimeout(selector(processor), 5000);
-            }
+      .then((res) => res.json())
+      .then((data) => data.keyboards[keyboard].processor)
+      .then((processor) => {
+        flashing = false;
+        selector(processor);
+        console.log('Auto Flash: ', window.Bridge.autoFlash);
+        if (window.Bridge.autoFlash) {
+          while (!flashing) {
+            setTimeout(selector(processor), 5000);
           }
-        })
-        .catch((err) => console.error(err));
+        }
+      })
+      .catch((err) => console.error(err));
   } else selector();
 }
 
@@ -98,7 +98,9 @@ function selector(processor) {
               USBasp(mcu);
             }
             if (productID == '0x0486' || productID == '0x0478') {
-              window.Bridge.statusAppend('Using Teensy loader to flash HalfKey');
+              window.Bridge.statusAppend(
+                'Using Teensy loader to flash HalfKey'
+              );
               tlc();
             }
           }
@@ -116,19 +118,23 @@ function selector(processor) {
             flashing = true;
             window.Bridge.statusAppend('Using dfu-util to flash dfu');
             if (vendorID == 0x0483) stm32();
-            if (vendorID == 0x1C11) kiibohd();
+            if (vendorID == 0x1c11) kiibohd();
           }
           break;
         default:
           window.Bridge.statusAppend(
-              'Programmer not yet implemented for this device'
+            'Programmer not yet implemented for this device'
           );
           break;
       }
       break;
     } else if (USBdevice == USBdevices[USBdevicesQTY - 1]) {
-      if (!window.Bridge.autoFlash) window.Bridge.statusAppend('ERROR: No USB Device Found');
-      else window.Bridge.statusAppend('ERROR: No USB Device Found Retrying in 5 secs');
+      if (!window.Bridge.autoFlash)
+        window.Bridge.statusAppend('ERROR: No USB Device Found');
+      else
+        window.Bridge.statusAppend(
+          'ERROR: No USB Device Found Retrying in 5 secs'
+        );
     }
   }
-};
+}

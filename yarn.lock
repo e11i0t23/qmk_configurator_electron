@@ -692,9 +692,9 @@ brace-expansion@^1.1.7:
     balanced-match "^1.0.0"
     concat-map "0.0.1"
 
-"browser-serialport@git+https://github.com/noopkat/browser-serialport.git#c8628c41c11890d3058875994c15f83f2df8185b":
+"browser-serialport@https://github.com/noopkat/browser-serialport#c8628c41c11890d3058875994c15f83f2df8185b":
   version "2.0.3"
-  resolved "git+https://github.com/noopkat/browser-serialport.git#c8628c41c11890d3058875994c15f83f2df8185b"
+  resolved "https://github.com/noopkat/browser-serialport#c8628c41c11890d3058875994c15f83f2df8185b"
 
 buffer-alloc-unsafe@^1.1.0:
   version "1.1.0"
@@ -1262,7 +1262,7 @@ electron-osx-sign@0.4.11:
     minimist "^1.2.0"
     plist "^3.0.1"
 
-electron-prompt@^1.3.1:
+electron-prompt@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/electron-prompt/-/electron-prompt-1.4.0.tgz#8924ed13c2ba7cc027c316d31ee1173e4c7d820e"
   integrity sha512-z7AHMrixiUArHn/8i9tDC7UlRRLoM50gtREScGASmG67hcI5A5I5paPZsLLgrMoyC5aV9RZ3YsJXHyDI48rM5g==
