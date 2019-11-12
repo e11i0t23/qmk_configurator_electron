@@ -2,6 +2,7 @@ const path = require('path');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const prompt = require('electron-prompt');
+const log = require('electron-log');
 
 const atmelDevices = {
   12270: ['atmega8u2'],
@@ -24,12 +25,12 @@ let dfuProgrammer;
 
 if (process.platform == 'win32') {
   dfuProgrammer = path.resolve('programmers', './dfu-programmer.exe');
-  console.log(dfuProgrammer);
 } else if (process.platform == 'darwin') {
   dfuProgrammer = path.resolve('programmers', './dfu-programmer');
 } else {
   dfuProgrammer = 'dfu-programmer';
 }
+log.info('DFU programmer is', dfuProgrammer);
 
 let DFUdevice = '';
 
@@ -39,23 +40,27 @@ let DFUdevice = '';
  * @param {string} processor processor submitted from api
  * @module programmers/dfuProgrammer
  */
-async function dfuProgrammerFlash(productID, processor) {
-  if (processor) handler(productID, processor);
-  else {
-    prompt({
-      title: 'Processor',
-      label: 'Please submit processor',
-      height: 150,
-      value: 'atmega32u4',
-    })
-        .then((r) => {
-          if (r === null) {
-            window.Bridge.statusAppend('No selection made flashing cancelled');
-          } else {
-            handler(productID, r);
-          }
-        })
-        .catch(console.error);
+function dfuProgrammerFlash(productID, processor) {
+  if (processor) {
+    handler(productID, processor);
+  } else {
+    prompt(
+      {
+        title: 'Processor',
+        label: 'Please submit processor',
+        height: 150,
+        value: 'atmega32u4',
+      },
+      process.win
+    )
+      .then((r) => {
+        if (r === null) {
+          window.Bridge.statusAppend('No selection made flashing cancelled');
+        } else {
+          handler(productID, r);
+        }
+      })
+      .catch(log.error);
   }
 }
 
@@ -63,7 +68,13 @@ module.exports = {
   dfuProgrammerFlash,
 };
 
-const handler = (productID, _processor) => {
+/**
+ * handler
+ * @param {string} productID
+ * @param {string} _processor processor submitted from api
+ * @module programmers/dfuProgrammer
+ */
+async function handler(productID, _processor) {
   console.log('processor: ', _processor);
   found = false;
   if (Object.keys(atmelDevices).includes(productID)) {
@@ -74,29 +85,23 @@ const handler = (productID, _processor) => {
         DFUdevice = _processor;
         found = true;
         window.Bridge.statusAppend(`Found USB Device ${DFUdevice}`);
-        eraseChip().then(() => {
-          console.log('errased device');
-          flashChip().then(() => {
-            console.log('flashed device');
-            resetChip().then(() => {
-              console.log(`flashing finnished`);
-              window.Bridge.statusAppend(
-                  '  Successfully Flashed Keymap onto device'
-              );
-            });
-          });
-        });
+        await eraseChip();
+        console.log('errased device');
+        await flashChip();
+        console.log('flashed device');
+        await resetChip();
+        console.log(`flashing finnished`);
+        window.Bridge.statusAppend('  Successfully Flashed Keymap onto device');
       } else if (i == atmelDevices[productID].length - 1) {
         if (!found) {
           window.Bridge.statusAppend(
-              'Please connect the Keyboard and enter reset'
+            'Please connect the Keyboard and press reset'
           );
         }
       }
     }
   }
-};
-
+}
 
 /**
  * Erase data from mcu
@@ -112,14 +117,18 @@ function eraseChip() {
     const regex = /.*Success.*\r?|\rChecking memory from .* Empty.*/;
     const {stderr} = await exec(command);
     window.Bridge.statusAppend(` ${stderr}`);
-    if (regex.test(stderr) || stderr.includes('Chip already blank') || stderr =='') {
+    if (
+      regex.test(stderr) ||
+      stderr.includes('Chip already blank') ||
+      stderr == ''
+    ) {
       resolve(true);
     } else {
       window.Bridge.statusAppend('Erase Failed');
       reject(new Error('Erase Failed'));
     }
   });
-};
+}
 
 /**
  * Flash hex to mcu
@@ -132,28 +141,33 @@ function flashChip() {
     command = `${dfuProgrammer} ${DFUdevice} flash ${window.inputPath}`;
     const {stderr} = await exec(command);
     window.Bridge.statusAppend(` ${stderr}`);
-    if (stderr.includes('Validating...  Success') || stderr.includes(" bytes used (")) resolve(true);
-    else {
+    if (
+      stderr.includes('Validating...  Success') ||
+      stderr.includes(' bytes used (')
+    ) {
+      resolve(true);
+    } else {
       window.Bridge.statusAppend('Flashing Failed');
       reject(new Error('Flash Failed'));
     }
   });
-};
+}
+
 /**
- * Reset the mcu
+ * reset chip
  * @return {Promise} reject - reset failed
  * @return {Promise} resolve - successfully reset mcu
- * @  programmers/dfuProgrammer
+ * @see  programmers/dfuProgrammer
  */
 function resetChip() {
   return new Promise(async (resolve, reject) => {
     command = `${dfuProgrammer} ${DFUdevice} reset`;
     const {stderr} = await exec(command);
     window.Bridge.statusAppend(` ${stderr}`);
-    if (stderr == '') resolve(true);
+    if (stderr === '') resolve(true);
     else {
       window.Bridge.statusAppend('Reset Failed');
       reject(new Error('Reset Failed'));
     }
   });
-};
+}
