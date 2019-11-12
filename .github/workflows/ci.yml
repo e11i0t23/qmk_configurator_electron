@@ -3,27 +3,23 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  windows:
-    runs-on: windows-2019
+  build:
+    name: ${{ matrix.node-version }} ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macOS-latest, windows-2019, ubuntu-16.04]
+        node-version: [10.16.0]
     steps:
       - uses: actions/checkout@v1
-      - name: Use Node.js 10.16.0
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
-          node-version: 10.16.0
-      - name: install node tools
-        run: npm install --global --production windows-build-tools@4.0.0
-      - name: install node-gyp
-        run: npm install --global node-gyp@latest
-      - name: Set node config to use python2.7
-        run: npm config set python python2.7
-      - name: Set node config to set msvs_version to 2015
-        run: npm config set msvs_version 2015
-     # - name: Work around for Windows Server 2019
-      #  run: "set path=%path%;C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin"
-      - name: Install dependencies
-        run: yarn install
-      - name: Build on Windows
+          node-version: ${{ matrix.node-version }}
+      - name: Build
         env:
-          ELECTRON: true
-        run: yarn dist
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          yarn install
+          yarn dist
