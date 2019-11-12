@@ -79,7 +79,7 @@
   "devDependencies": {
     "avrgirl-arduino": "^3.0.2",
     "electron": "^4.2.9",
-    "electron-builder": "^20.44.4",
+    "electron-builder": "21.2.0",
     "eslint": "^5.16.0",
     "eslint-config-google": "^0.13.0",
     "jsdoc": "^3.6.3"
