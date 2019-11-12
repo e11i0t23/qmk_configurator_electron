@@ -23,7 +23,7 @@
     },
     "appId": "com.qmk.configurator",
     "mac": {
-      "category": "Utilty",
+      "category": "Utility",
       "target": [
         "default"
       ]
@@ -45,15 +45,6 @@
       ]
     },
     "deb": {
-      "depends": [
-        "dfu-programmer",
-        "dfu-util",
-        "teensy-loader-cli",
-        "avrdude"
-      ],
-      "afterInstall": "./build/postinstall.sh"
-    },
-    "apk": {
       "depends": [
         "dfu-programmer",
         "dfu-util",
