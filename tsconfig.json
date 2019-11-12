@@ -8,8 +8,10 @@
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "*": ["node_modules/*"]
-    }
+      "*": ["node_modules/*"],
+    },
+    "allowJs": true,
+    "checkJs": false
   },
   "include": [
     "src/**/*"

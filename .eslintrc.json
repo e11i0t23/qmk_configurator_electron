@@ -1,16 +1,20 @@
 {
+    "parser": "@typescript-eslint/parser",
     "env": {
         "node": true,
         "commonjs": true,
         "es6": true
     },
-    "extends": "google",
+    "extends": [
+      "plugin:@typescript-eslint/recommended"
+    ],
     "globals": {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly"
     },
     "parserOptions": {
-        "ecmaVersion": 2018
+        "ecmaVersion": 2018,
+        "sourceType": "module"
     },
     "rules": {
         "max-len": ["error", { "code": 100 }],

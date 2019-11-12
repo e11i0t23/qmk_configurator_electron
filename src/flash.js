@@ -9,12 +9,12 @@ temp.track();
 
 /**
  * Download keymap from API before initiating programmer selection
- * @param {String} url URL from compiler API for file download
- * @param {String} keyboard Name of keyboard
- * @param {String} filename Name of file to save download to
+ * @param {string} url URL from compiler API for file download
+ * @param {string} keyboard Name of keyboard
+ * @param {string} filename Name of file to save download to
  * @module window.Bridge
  */
-async function flashURL(url, keyboard, filename) {
+function flashURL(url, keyboard, filename) {
   console.log(url, keyboard, filename);
   temp.mkdir('qmkconfigurator', function(err, dirPath) {
     window.tempFolder = dirPath;
@@ -41,7 +41,7 @@ async function flashURL(url, keyboard, filename) {
 /**
  * Flash a custom file
  */
-async function flashFile() {
+function flashFile() {
   window.Bridge.statusAppend('----STARTING FILE FLASHING PROCEDURES----');
   dialog
     .showOpenDialog(process.win, {
