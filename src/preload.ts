@@ -1,7 +1,7 @@
 // in preload scripts, we have access to node.js and electron APIs
 // the remote web app will not have access, so this is safe
 import {ipcRenderer as ipc, remote} from 'electron';
-import * as flash from './flash';
+import {flashURL, flashFile} from './flash';
 
 declare global {
   interface Window {
@@ -23,8 +23,8 @@ function init() {
   // user's computer. E.g. don't directly expose core Electron (even IPC) or node.js modules.
   window.Bridge = {
     setDockBadge: setDockBadge,
-    flashURL: flash.flashURL,
-    flashFile: flash.flashFile,
+    flashURL,
+    flashFile,
     autoFlash: Boolean,
     enableFlashing: Boolean,
   };

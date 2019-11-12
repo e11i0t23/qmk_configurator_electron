@@ -1,9 +1,9 @@
-const temp = require('temp');
-const path = require('path');
-const selector = require('./modules/selector');
-const https = require('follow-redirects').https;
-const fs = require('fs');
-const {dialog} = require('electron').remote;
+import * as temp from 'temp';
+import * as path from 'path';
+import * as selector from './modules/selector';
+import {https} from 'follow-redirects';
+import * as fs from 'fs';
+import {remote} from 'electron';
 
 temp.track();
 
@@ -13,8 +13,9 @@ temp.track();
  * @param {string} keyboard Name of keyboard
  * @param {string} filename Name of file to save download to
  * @module window.Bridge
+ * @returns void
  */
-function flashURL(url, keyboard, filename) {
+export function flashURL(url, keyboard, filename) {
   console.log(url, keyboard, filename);
   temp.mkdir('qmkconfigurator', function(err, dirPath) {
     window.tempFolder = dirPath;
@@ -40,15 +41,17 @@ function flashURL(url, keyboard, filename) {
 
 /**
  * Flash a custom file
+ * @returns void
  */
-function flashFile() {
+export function flashFile() {
   window.Bridge.statusAppend('----STARTING FILE FLASHING PROCEDURES----');
+  const {dialog} = remote;
   dialog
     .showOpenDialog(process.win, {
       filters: [{name: '.bin, .hex', extensions: ['bin', 'hex']}],
       properties: ['openFile'],
     })
-    .then(({canceled, filePaths, bookmarks}) => {
+    .then(({canceled, filePaths}) => {
       if (canceled) {
         window.Bridge.statusAppend('Flash Cancelled');
         return;
@@ -60,8 +63,3 @@ function flashFile() {
       }
     });
 }
-
-module.exports = {
-  flashURL,
-  flashFile,
-};
