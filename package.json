@@ -23,7 +23,7 @@
     },
     "appId": "com.qmk.configurator",
     "mac": {
-      "category": "Utilty",
+      "category": "Utility",
       "target": [
         "default"
       ]
@@ -53,15 +53,6 @@
       ],
       "afterInstall": "./build/postinstall.sh"
     },
-    "apk": {
-      "depends": [
-        "dfu-programmer",
-        "dfu-util",
-        "teensy-loader-cli",
-        "avrdude"
-      ],
-      "afterInstall": "./build/postinstall.sh"
-    },
     "pacman": {
       "depends": [
         "dfu-programmer",
@@ -79,7 +70,7 @@
   "devDependencies": {
     "avrgirl-arduino": "^3.0.2",
     "electron": "^7.1.1",
-    "electron-builder": "^20.44.4",
+    "electron-builder": "^21.2.0",
     "electron-rebuild": "^1.8.6",
     "eslint": "^5.16.0",
     "eslint-config-google": "^0.13.0",
