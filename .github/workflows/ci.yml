@@ -15,7 +15,9 @@ jobs:
       - uses: actions/checkout@v1
       - name: install packages (ubuntu)
         if: startsWith(matrix.os, 'ubuntu')
-        run: sudo apt-get install libudev-dev libusb-1.0-0-dev bsdtar
+        run: |
+          sudo apt-get update
+          sudo apt-get install libudev-dev libusb-1.0-0-dev bsdtar
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
