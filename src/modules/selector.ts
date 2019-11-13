@@ -7,31 +7,31 @@ import {atmelSamBa} from './programmers/mdloader';
 
 import usb from 'usb';
 
-const deviceIDs = {
-  0x03eb: 'dfu-programmer', // Atmel vendor id
-  0x2341: 'caterina', // Arduino vendor id
-  0x1b4f: 'caterina', // Sparkfun vendor id
-  0x239a: 'caterina', // adafruit vendor id
-  0x0483: 'dfu-util',
-  0x1c11: 'dfu-util',
-  0x16c0: 'avrisp/usbasp',
-  0x1781: 'usbtiny',
-};
-let flashing;
+const deviceIDs: Map<number, string> = new Map([
+  [0x03eb, 'dfu-programmer'], // Atmel vendor id
+  [0x2341, 'caterina'], // Arduino vendor id
+  [0x1b4f, 'caterina'], // Sparkfun vendor id
+  [0x239a, 'caterina'], // adafruit vendor id
+  [0x0483, 'dfu-util'],
+  [0x1c11, 'dfu-util'],
+  [0x16c0, 'avrisp/usbasp'],
+  [0x1781, 'usbtiny'],
+]);
+let flashing: Boolean = false;
 
 /**
  * Selects the programmer to use
  * @param {String} processor
  * @module selector
  */
-function selector(processor) {
+function selector(processor?: string) {
   const USBdevices = usb.getDeviceList();
   const USBdevicesQTY = USBdevices.length;
   for (const USBdevice of USBdevices) {
     const vendorID = USBdevice.deviceDescriptor.idVendor;
     const productID = USBdevice.deviceDescriptor.idProduct;
     // Check if known VID for AVR/ARM programmers
-    const programmer = deviceIDs[vendorID];
+    const programmer = deviceIDs.get(vendorID);
     if (!isUndefined(programmer)) {
       // Forwards onto seperate programming scripts found in ./modules/programmers
       let mcu = '';
@@ -60,15 +60,15 @@ function selector(processor) {
           if (!flashing) {
             flashing = true;
             mcu = 'm32u4';
-            if (productID == '0x0483') {
+            if (productID == 0x0483) {
               window.Bridge.statusAppend('Using avrdude to flash avrisp');
               avrisp(mcu);
             }
-            if (productID == '0x05DC') {
+            if (productID == 0x05DC) {
               window.Bridge.statusAppend('Using avrdude to flash USBasp');
               USBasp(mcu);
             }
-            if (productID == '0x0486' || productID == '0x0478') {
+            if (productID == 0x0486 || productID == 0x0478) {
               window.Bridge.statusAppend(
                 'Using Teensy loader to flash HalfKey'
               );
@@ -121,7 +121,7 @@ function selector(processor) {
  * @param {String} processor Takes a processor name from form
  * @member selector
  */
-export function routes(keyboard, processor) {
+export function routes(keyboard: string, processor: string) {
   console.log(keyboard);
   window.Bridge.autoFlash = false;
   flashing = false;
@@ -141,5 +141,7 @@ export function routes(keyboard, processor) {
         }
       })
       .catch((err) => console.error(err));
-  } else selector();
+  } else {
+    selector();
+  }
 }
