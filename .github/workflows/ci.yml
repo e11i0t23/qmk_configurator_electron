@@ -24,8 +24,8 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         run: |
           yarn global add node-gyp@latest
-          yarn config set msvs_version 2015
-          yarn config set python python2.7
+          yarn config set msvs_version 2015 || true
+          yarn config set python python2.7 || true
       - name: Install
         run: yarn install
       - name: Build
