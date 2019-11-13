@@ -9,11 +9,13 @@
         "es6": true
     },
     "extends": [
-      "plugin:@typescript-eslint/recommended"
+      "plugin:@typescript-eslint/recommended",
+      "eslint:recommended"
     ],
     "globals": {
         "Atomics": "readonly",
-        "SharedArrayBuffer": "readonly"
+        "SharedArrayBuffer": "readonly",
+        "window": "readwrite"
     },
     "parserOptions": {
         "ecmaVersion": 2018,
@@ -22,6 +24,7 @@
     "rules": {
         "max-len": ["error", { "code": 100 }],
         "linebreak-style":"off",
-        "indent": ["error", 2]
+        "indent": ["error", 2],
+        "no-console": "off"
     }
 }
