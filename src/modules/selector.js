@@ -1,5 +1,5 @@
-const {dfuProgrammerFlash} = require('./programmers/dfu-programmer');
-const {stm32, kiibohd} = require('./programmers/dfu-util');
+import {dfuProgrammerFlash} from './programmers/dfu-programmer';
+import {stm32, kiibohd} from './programmers/dfu-util';
 const {caterina, avrisp, USBtiny, USBasp} = require('./programmers/avrdude');
 const {tlc} = require('./programmers/teensy_loader_cli');
 const {atmelSamBa} = require('./programmers/mdloader');
@@ -55,15 +55,16 @@ module.exports = {routes};
  * @module selector
  */
 function selector(processor) {
-  USBdevices = usb.getDeviceList();
-  USBdevicesQTY = USBdevices.length;
+  const USBdevices = usb.getDeviceList();
+  const USBdevicesQTY = USBdevices.length;
   for (const USBdevice of USBdevices) {
-    vendorID = USBdevice.deviceDescriptor.idVendor.toString();
-    productID = USBdevice.deviceDescriptor.idProduct;
+    const vendorID = USBdevice.deviceDescriptor.idVendor.toString();
+    const productID = USBdevice.deviceDescriptor.idProduct;
     // Check if known VID for AVR/ARM programmers
     if (Object.keys(deviceIDs).includes(vendorID)) {
-      programmer = deviceIDs[vendorID];
+      const programmer = deviceIDs[vendorID];
       // Forwards onto seperate programming scripts found in ./modules/programmers
+      let mcu = '';
       switch (programmer) {
         case 'dfu-programmer':
           if (!flashing) {
@@ -72,7 +73,7 @@ function selector(processor) {
               atmelSamBa();
             } else {
               window.Bridge.statusAppend('Using DFU-Programmer');
-              setTimeout(dfuProgrammerFlash(productID, processor), 500);
+              dfuProgrammerFlash(productID, processor);
             }
             flashing = true;
           }
@@ -117,8 +118,11 @@ function selector(processor) {
           if (!flashing) {
             flashing = true;
             window.Bridge.statusAppend('Using dfu-util to flash dfu');
-            if (vendorID == 0x0483) stm32();
-            if (vendorID == 0x1c11) kiibohd();
+            if (vendorID === 0x0483) {
+              stm32();
+            } else if (vendorID === 0x1c11) {
+              kiibohd();
+            }
           }
           break;
         default:

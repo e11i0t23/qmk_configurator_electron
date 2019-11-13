@@ -14,48 +14,46 @@ if (process.platform === 'win32') {
   dfuUtil = 'dfu-util';
 }
 
-module.exports = {
-  stm32: () => {
-    const firmware = window.inputPath;
-    console.log(firmware);
-    if (firmware.endsWith('bin')) {
-      const command = dfuUtil;
-      const args = [
-        '-a',
-        '0',
-        '-d',
-        '0483:df11',
-        '-s',
-        '0x08000000:leave',
-        '-D',
-        firmware,
-      ];
-      try {
-        const dfuer = spawn(command, args);
-        dfuer.stdout.on('data', window.Bridge.statusAppendNoLF);
-        dfuer.stderr.on('data', window.Bridge.statusAppendNoLF);
-      } catch (error) {
-        window.Bridge.statusAppend(` error: ${error}`);
-      }
-    } else {
-      window.Bridge.statusAppend(` Err: dfu-util only works with .bin files`);
+export function stm32() {
+  const firmware = window.inputPath;
+  console.log(firmware);
+  if (firmware.endsWith('bin')) {
+    const command = dfuUtil;
+    const args = [
+      '-a',
+      '0',
+      '-d',
+      '0483:df11',
+      '-s',
+      '0x08000000:leave',
+      '-D',
+      firmware,
+    ];
+    try {
+      const dfuer = spawn(command, args);
+      dfuer.stdout.on('data', window.Bridge.statusAppendNoLF);
+      dfuer.stderr.on('data', window.Bridge.statusAppendNoLF);
+    } catch (error) {
+      window.Bridge.statusAppend(` error: ${error}`);
     }
-  },
+  } else {
+    window.Bridge.statusAppend(` Err: dfu-util only works with .bin files`);
+  }
+}
 
-  kiibohd: () => {
-    const f = window.inputPath;
-    if (f.endsWith('bin')) {
-      const command = dfuUtil;
-      const args = ['-D', f];
-      try {
-        const dfuer = spawn(command, args);
-        dfuer.stdout.on('data', window.Bridge.statusAppendNoLF);
-        dfuer.stderr.on('data', window.Bridge.statusAppendNoLF);
-      } catch (error) {
-        window.Bridge.statusAppend(` error: ${error}`);
-      }
-    } else {
-      window.Bridge.statusAppend(` Err: dfu-util only works with .bin files`);
+export function kiibohd() {
+  const f = window.inputPath;
+  if (f.endsWith('bin')) {
+    const command = dfuUtil;
+    const args = ['-D', f];
+    try {
+      const dfuer = spawn(command, args);
+      dfuer.stdout.on('data', window.Bridge.statusAppendNoLF);
+      dfuer.stderr.on('data', window.Bridge.statusAppendNoLF);
+    } catch (error) {
+      window.Bridge.statusAppend(` error: ${error}`);
     }
-  },
-};
+  } else {
+    window.Bridge.statusAppend(` Err: dfu-util only works with .bin files`);
+  }
+}
