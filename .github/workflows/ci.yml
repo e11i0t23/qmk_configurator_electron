@@ -1,7 +1,5 @@
 name: CI
-
 on: [push, pull_request]
-
 jobs:
   build:
     name: ${{ matrix.node-version }} ${{ matrix.os }}
@@ -18,6 +16,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install libudev-dev libusb-1.0-0-dev bsdtar
+      - name: install Win build tools
+        if: startsWith(matrix.os, 'windows')
+        run: npm install --global --production windows-build-tools
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
