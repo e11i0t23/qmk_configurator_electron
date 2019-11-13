@@ -39,7 +39,7 @@ function routes(keyboard, processor) {
         console.log('Auto Flash: ', window.Bridge.autoFlash);
         if (window.Bridge.autoFlash) {
           while (!flashing) {
-            setTimeout(selector(processor), 5000);
+            setTimeout(() => selector(processor), 5000);
           }
         }
       })
@@ -73,7 +73,7 @@ function selector(processor) {
               atmelSamBa();
             } else {
               window.Bridge.statusAppend('Using DFU-Programmer');
-              dfuProgrammerFlash(productID, processor);
+              setTimeout(() => dfuProgrammerFlash(productID, processor), 500);
             }
             flashing = true;
           }
