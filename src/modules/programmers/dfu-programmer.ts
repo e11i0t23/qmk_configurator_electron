@@ -40,23 +40,21 @@ log.info('DFU programmer is', dfuProgrammer);
  * @module programmers/dfuProgrammer
  */
 function eraseChip(device: string) {
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     let command = dfuProgrammer;
-    let args = [];
-    if (process.platform == `win32`) {
-      args = [device, 'erase', '--force'];
-    } else {
-      args = [device, 'erase'];
+    let args = [device, 'erase'];
+    if (process.platform === 'win32') {
+      args.push('--force');
     }
+
     const regex = /.*Success.*\r?|\rChecking memory from .* Empty.*/;
     const eraser = spawn(command, args);
     const stderr: string[] = [];
-    eraser.stdout.on('data', (data) => {
-      window.Bridge.statusAppend(` ${data}`);
-    });
+
     eraser.stderr.on('data', (data) => {
       stderr.push(data);
     });
+
     eraser.on('exit', (code /*, signal*/) => {
       const str = stderr.join('');
       if (
@@ -78,21 +76,22 @@ function eraseChip(device: string) {
 
 /**
  * Flash hex to mcu
- * @return {Promise} reject - flash failed
- * @return {Promise} resolve - successfully flashed mcu
+ * @return {Promise} flash failed resolve or successfully flashed mcu
  * @module programmers/dfuProgrammer
  */
 function flashChip(device: string) {
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const command = dfuProgrammer;
     const args = [device, 'flash', window.inputPath];
     const flasher = spawn(command, args);
-    const stderr = [];
+
+    // add a linefeed to console output
     window.Bridge.statusAppend('');
+
     flasher.stderr.on('data', (data) => {
-      stderr.push(data);
-      window.Bridge.statusAppendNoLF(`${data}`);
+      window.Bridge.statusAppendNoLF(data);
     });
+
     flasher.on('exit', (code) => {
       if (code === 0) {
         resolve(true);
@@ -111,11 +110,12 @@ function flashChip(device: string) {
  * @see  programmers/dfuProgrammer
  */
 function resetChip(device: string) {
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const command: string = dfuProgrammer;
     const args = [device, 'reset'];
     const resetter = spawn(command, args);
     const stderr: string[] = [];
+
     resetter.stderr.on('data', (data) => {
       stderr.push(data);
     });
@@ -137,44 +137,38 @@ function resetChip(device: string) {
  * @param {string} _processor processor submitted from api
  * @module programmers/dfuProgrammer
  */
-async function handler(productID: number, _processor: string) {
-  console.log('processor: ', _processor);
-  let found = false;
+async function handler(productID: number, processor: string) {
+  console.log('processor: ', processor);
   if (atmelDevices.has(productID)) {
     const searchList = atmelDevices.get(productID);
     console.log(searchList);
-    for (let i = 0; i < searchList.length; i++) {
-      const dev = searchList[i];
-      if (_processor === dev && found === false) {
-        const DFUdevice = _processor;
-        found = true;
-        window.Bridge.statusAppend(`Found USB Device ${DFUdevice}`);
-        try {
-          await eraseChip(DFUdevice);
-          console.log('erased device');
-          await flashChip(DFUdevice);
-          console.log('flashed device');
-          await resetChip(DFUdevice);
-          console.log(`flashing finished`);
-        } catch (err) {
-          window.Bridge.statusAppend(`  Error Flashing ${err}`);
-          return err;
-        }
-        window.Bridge.statusAppend('  Successfully Flashed Keymap onto device');
-      } else if (i === searchList.length - 1) {
-        if (!found) {
-          window.Bridge.statusAppend(
-            'Please connect the Keyboard and press reset'
-          );
-        }
+    const index = searchList.findIndex(
+      (processorID) => processorID === processor
+    );
+
+    if (index > -1) {
+      window.Bridge.statusAppend(`Found USB Device ${processor}`);
+      try {
+        await eraseChip(processor);
+        console.log(`Erased device ${processor}`);
+        await flashChip(processor);
+        console.log(`Flashed device ${processor}`);
+        await resetChip(processor);
+        console.log(`Rebooting keyboard`);
+      } catch (err) {
+        window.Bridge.statusAppend(`  Error Flashing ${err}`);
+        return err;
       }
+      window.Bridge.statusAppend('  Successfully Flashed Keymap onto device');
+    } else {
+      window.Bridge.statusAppend('Please connect the Keyboard and press reset');
     }
   }
 }
 
 /**
  * Processing unit for flashing with dfu programmer
- * @param {hexidecimal} productID usb PID for atmel device
+ * @param {number} productID usb PID for atmel device
  * @param {string} processor processor submitted from api
  * @module programmers/dfuProgrammer
  */
