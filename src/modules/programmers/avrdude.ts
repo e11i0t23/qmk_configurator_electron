@@ -19,58 +19,56 @@ if (process.platform === 'win32') {
 
 log.info(`avrdude binary ${avrdude}`);
 
-async function flash(args: Array<string>, vendorIDs: Array<String>) {
+function runAvrdude(
+  args: Array<string>,
+  caterinaPort: string
+): Record<string, any> {
+  // TODO - comName deprecated in 8, need to move to path
+  // typescript bindings haven't been updated
+  args = args.concat([
+    '-C',
+    `${path.dirname(avrdude)}/avrdude.conf`,
+    '-P',
+    caterinaPort,
+  ]);
+  const avrduder = spawn(avrdude, args);
+  window.Bridge.statusAppend('');
+
+  avrduder.stdout.on('data', window.Bridge.statusAppendNoLF);
+  avrduder.stderr.on('data', window.Bridge.statusAppendNoLF);
+  return avrduder;
+}
+
+async function flash(args: Array<string>, vendorIDs: Array<string>) {
   SerialPort.list()
     .then(function(ports) {
       console.log(ports);
-      ports.forEach(async function(port) {
-        console.log(port.vendorId);
-        if (vendorIDs.includes(port.vendorId)) {
-          // TODO - deprecated in 8, need to move to path
-          // typescript bindings haven't been updated
-          const CaterinaPort = port.comName;
-          const command = avrdude;
-          args = args.concat([
-            '-C',
-            `${path.dirname(avrdude)}/avrdude.conf`,
-            '-P',
-            CaterinaPort,
-          ]);
-          const avrduder = spawn(command, args);
-          window.Bridge.statusAppend('');
-
-          avrduder.stdout.on('data', window.Bridge.statusAppendNoLF);
-          avrduder.stderr.on('data', window.Bridge.statusAppendNoLF);
-        } else if (port == ports[ports.length - 1]) {
-          window.Bridge.statusAppend('No Com Port Found');
-        }
-      });
+      const idx = ports.findIndex((port) => vendorIDs.includes(port.vendorId));
+      if (idx > -1) {
+        runAvrdude(args, ports[idx].comName);
+      } else {
+        window.Bridge.statusAppend('No serial Port Found');
+      }
     })
     .catch(window.Bridge.statusAppend);
 }
 
+function argBuilder(
+  mcu: string,
+  protocol: string,
+  filepath: string
+): Array<string> {
+  return ['-p', mcu, '-c', protocol, '-U', `flash:w:${filepath}:i`];
+}
+
 export function caterina(mcu: string) {
   const vendorIDs = ['2341', '1B4F', '239a'];
-  const args = [
-    '-p',
-    mcu,
-    '-c',
-    'avr109',
-    '-U',
-    `flash:w:${window.inputPath}:i`,
-  ];
+  const args = argBuilder(mcu, 'avr109', window.inputPath);
   return flash(args, vendorIDs);
 }
 export function avrisp(mcu: string) {
   const vendorIDs = ['16C0'];
-  const args = [
-    '-p',
-    mcu,
-    '-c',
-    'avrisp',
-    '-U',
-    `flash:w:${window.inputPath}:i`,
-  ];
+  const args = argBuilder(mcu, 'avrisp', window.inputPath);
   return flash(args, vendorIDs);
 }
 export function USBasp(mcu: string) {
@@ -84,19 +82,13 @@ export function USBasp(mcu: string) {
       if (r === null) {
         window.Bridge.statusAppend('No selection made flashing cancelled');
       } else {
-        const args = [
-          '-p',
-          r,
-          '-c',
-          'usbasp',
-          '-U',
-          `flash:w:${window.inputPath}:i`,
-        ];
+        const args = argBuilder(r, 'uspasp', window.inputPath);
         return flash(args, []);
       }
     })
     .catch(console.error);
 }
+
 export function USBtiny(mcu: string) {
   prompt({
     title: 'Processor',
@@ -109,14 +101,7 @@ export function USBtiny(mcu: string) {
         window.Bridge.statusAppend('No selection made flashing cancelled');
       } else {
         const vendorIDs = ['1781'];
-        const args = [
-          '-p',
-          r,
-          '-c',
-          'usbtiny',
-          '-U',
-          `flash:w:${window.inputPath}:i`,
-        ];
+        const args = argBuilder(r, 'usbtiny', window.inputPath);
         return flash(args, vendorIDs);
       }
     })
