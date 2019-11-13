@@ -6,6 +6,7 @@ import {flashURL, flashFile} from './flash';
 declare global {
   interface Window {
     Bridge: any;
+    inputPath: string;
   }
 }
 
