@@ -47,7 +47,7 @@ export function flashFile() {
   window.Bridge.statusAppend('----STARTING FILE FLASHING PROCEDURES----');
   const {dialog} = remote;
   dialog
-    .showOpenDialog(process.win, {
+    .showOpenDialog({
       filters: [{name: '.bin, .hex', extensions: ['bin', 'hex']}],
       properties: ['openFile'],
     })
