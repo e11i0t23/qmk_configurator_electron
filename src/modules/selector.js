@@ -59,7 +59,7 @@ function selector(processor) {
   USBdevicesQTY = USBdevices.length;
   for (const USBdevice of USBdevices) {
     vendorID = USBdevice.deviceDescriptor.idVendor.toString();
-    productID = USBdevice.deviceDescriptor.idProduct.toString();
+    productID = USBdevice.deviceDescriptor.idProduct;
     // Check if known VID for AVR/ARM programmers
     if (Object.keys(deviceIDs).includes(vendorID)) {
       programmer = deviceIDs[vendorID];
@@ -67,7 +67,7 @@ function selector(processor) {
       switch (programmer) {
         case 'dfu-programmer':
           if (!flashing) {
-            if (productID == 0x6124) {
+            if (productID === 0x6124) {
               window.Bridge.statusAppend(' flashing atmel SamBa with mdloader');
               atmelSamBa();
             } else {

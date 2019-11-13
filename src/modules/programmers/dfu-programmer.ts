@@ -1,28 +1,28 @@
 import * as path from 'path';
 import * as childProcess from 'child_process';
 const spawn = childProcess.spawn;
-import * as prompt from 'electron-prompt';
+import prompt from 'electron-prompt';
 import log from 'electron-log';
-import * as first from 'lodash/first';
+import first from 'lodash/first';
 
-const atmelDevices = {
-  12270: ['atmega8u2'],
-  12271: ['atmega16u2'],
-  12272: ['atmega32u2'],
-  12273: ['at32uc3a3'],
-  12275: ['atmega16u4'],
-  12276: ['atmega32u4'],
-  12278: ['at32uc3b0', 'at32uc3b1'],
-  12279: ['at90usb82'],
-  12280: ['at32uc3a0', 'at32uc3a1'],
-  12281: ['at90usb646'],
-  12282: ['at90usb162'],
-  12283: ['at90usb1286', 'at90usb1287'],
-  12285: ['at89c5130', 'at89c5131'],
-  12287: ['at89c5132', 'at89c5snd1c'],
-};
+const atmelDevices: Map<number, Array<string>> = new Map([
+  [12270, ['atmega8u2']],
+  [12271, ['atmega16u2']],
+  [12272, ['atmega32u2']],
+  [12273, ['at32uc3a3']],
+  [12275, ['atmega16u4']],
+  [12276, ['atmega32u4']],
+  [12278, ['at32uc3b0', 'at32uc3b1']],
+  [12279, ['at90usb82']],
+  [12280, ['at32uc3a0', 'at32uc3a1']],
+  [12281, ['at90usb646']],
+  [12282, ['at90usb162']],
+  [12283, ['at90usb1286', 'at90usb1287']],
+  [12285, ['at89c5130', 'at89c5131']],
+  [12287, ['at89c5132', 'at89c5snd1c']],
+]);
 
-let dfuProgrammer;
+let dfuProgrammer: string;
 
 if (process.platform == 'win32') {
   dfuProgrammer = path.resolve('programmers', './dfu-programmer.exe');
@@ -39,7 +39,7 @@ log.info('DFU programmer is', dfuProgrammer);
  * @return {Promise} resolve - successfully erased mcu
  * @module programmers/dfuProgrammer
  */
-function eraseChip(device) {
+function eraseChip(device: string) {
   return new Promise(async (resolve, reject) => {
     let command = dfuProgrammer;
     let args = [];
@@ -50,7 +50,7 @@ function eraseChip(device) {
     }
     const regex = /.*Success.*\r?|\rChecking memory from .* Empty.*/;
     const eraser = spawn(command, args);
-    const stderr = [];
+    const stderr: string[] = [];
     eraser.stdout.on('data', (data) => {
       window.Bridge.statusAppend(` ${data}`);
     });
@@ -82,7 +82,7 @@ function eraseChip(device) {
  * @return {Promise} resolve - successfully flashed mcu
  * @module programmers/dfuProgrammer
  */
-function flashChip(device) {
+function flashChip(device: string) {
   return new Promise(async (resolve, reject) => {
     const command = dfuProgrammer;
     const args = [device, 'flash', window.inputPath];
@@ -110,12 +110,12 @@ function flashChip(device) {
  * @return {Promise} resolve - successfully reset mcu
  * @see  programmers/dfuProgrammer
  */
-function resetChip(device) {
+function resetChip(device: string) {
   return new Promise(async (resolve, reject) => {
-    const command = dfuProgrammer;
+    const command: string = dfuProgrammer;
     const args = [device, 'reset'];
     const resetter = spawn(command, args);
-    const stderr = [];
+    const stderr: string[] = [];
     resetter.stderr.on('data', (data) => {
       stderr.push(data);
     });
@@ -133,15 +133,15 @@ function resetChip(device) {
 
 /**
  * handler
- * @param {string} productID
+ * @param {number} productID
  * @param {string} _processor processor submitted from api
  * @module programmers/dfuProgrammer
  */
-async function handler(productID, _processor) {
+async function handler(productID: number, _processor: string) {
   console.log('processor: ', _processor);
   let found = false;
-  if (Object.keys(atmelDevices).includes(productID)) {
-    const searchList = atmelDevices[productID];
+  if (atmelDevices.has(productID)) {
+    const searchList = atmelDevices.get(productID);
     console.log(searchList);
     for (let i = 0; i < searchList.length; i++) {
       const dev = searchList[i];
@@ -178,7 +178,7 @@ async function handler(productID, _processor) {
  * @param {string} processor processor submitted from api
  * @module programmers/dfuProgrammer
  */
-export function dfuProgrammerFlash(productID, processor) {
+export function dfuProgrammerFlash(productID: number, processor: string) {
   if (processor) {
     handler(productID, processor);
   } else {
@@ -186,9 +186,9 @@ export function dfuProgrammerFlash(productID, processor) {
       title: 'Processor',
       label: 'Please submit processor',
       height: 150,
-      value: first(atmelDevices[productID]),
+      value: first(atmelDevices.get(productID)),
     })
-      .then((r) => {
+      .then((r: string) => {
         if (r === null) {
           window.Bridge.statusAppend('No selection made flashing cancelled');
         } else {
