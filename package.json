@@ -86,6 +86,8 @@
     "typescript": "^3.7.2"
   },
   "dependencies": {
+    "@serialport/bindings": "3",
+    "@types/serialport": "^7.0.4",
     "electron-log": "^3.0.9",
     "electron-prompt": "^1.4.0",
     "electron-updater": "^4.1.2",
