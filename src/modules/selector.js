@@ -1,11 +1,11 @@
 import {dfuProgrammerFlash} from './programmers/dfu-programmer';
 import {stm32, kiibohd} from './programmers/dfu-util';
 import isUndefined from 'lodash/isUndefined';
-const {caterina, avrisp, USBtiny, USBasp} = require('./programmers/avrdude');
-const {tlc} = require('./programmers/teensy_loader_cli');
-const {atmelSamBa} = require('./programmers/mdloader');
+import {caterina, avrisp, USBtiny, USBasp} from './programmers/avrdude';
+import {tlc} from './programmers/teensy_loader_cli';
+import {atmelSamBa} from './programmers/mdloader';
 
-const usb = require('usb');
+import usb from 'usb';
 
 const deviceIDs = {
   0x03eb: 'dfu-programmer', // Atmel vendor id
@@ -18,37 +18,6 @@ const deviceIDs = {
   0x1781: 'usbtiny',
 };
 let flashing;
-
-/**
- * Calls API for processor the calls selector (repeatedly if autoflash)
- * @param {String} keyboard Takes a keyboard name from configurator
- * @param {String} processor Takes a processor name from form
- * @member selector
- */
-function routes(keyboard, processor) {
-  console.log(keyboard);
-  window.Bridge.autoFlash = false;
-  flashing = false;
-  if (keyboard != null) {
-    window.Bridge.autoFlash = true;
-    fetch('http://api.qmk.fm/v1/keyboards/' + keyboard)
-      .then((res) => res.json())
-      .then((data) => data.keyboards[keyboard].processor)
-      .then((processor) => {
-        flashing = false;
-        selector(processor);
-        console.log('Auto Flash: ', window.Bridge.autoFlash);
-        if (window.Bridge.autoFlash) {
-          while (!flashing) {
-            setTimeout(() => selector(processor), 5000);
-          }
-        }
-      })
-      .catch((err) => console.error(err));
-  } else selector();
-}
-
-module.exports = {routes};
 
 /**
  * Selects the programmer to use
@@ -144,4 +113,33 @@ function selector(processor) {
         );
     }
   }
+}
+
+/**
+ * Calls API for processor the calls selector (repeatedly if autoflash)
+ * @param {String} keyboard Takes a keyboard name from configurator
+ * @param {String} processor Takes a processor name from form
+ * @member selector
+ */
+export function routes(keyboard, processor) {
+  console.log(keyboard);
+  window.Bridge.autoFlash = false;
+  flashing = false;
+  if (keyboard != null) {
+    window.Bridge.autoFlash = true;
+    fetch('http://api.qmk.fm/v1/keyboards/' + keyboard)
+      .then((res) => res.json())
+      .then((data) => data.keyboards[keyboard].processor)
+      .then((processor) => {
+        flashing = false;
+        selector(processor);
+        console.log('Auto Flash: ', window.Bridge.autoFlash);
+        if (window.Bridge.autoFlash) {
+          while (!flashing) {
+            setTimeout(() => selector(processor), 5000);
+          }
+        }
+      })
+      .catch((err) => console.error(err));
+  } else selector();
 }
