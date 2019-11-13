@@ -22,7 +22,11 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Install windows build tools
         if: startsWith(matrix.os, 'windows')
-        run: yarn add global windows-build-tools
+        run: |
+          yarn add global windows-build-tools
+          yarn add global node-gyp@latest
+          yarn config set msvs_version 2015
+          yarn config set python python2.7
       - name: Install
         run: yarn install
       - name: Build
