@@ -1,8 +1,9 @@
-const path = require('path');
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
-const prompt = require('electron-prompt');
-const log = require('electron-log');
+import * as path from 'path';
+import * as util from 'util';
+import * as childProcess from 'child_process';
+const exec = util.promisify(childProcess.exec);
+import * as prompt from 'electron-prompt';
+import log from 'electron-log';
 
 const atmelDevices = {
   12270: ['atmega8u2'],
@@ -32,88 +33,20 @@ if (process.platform == 'win32') {
 }
 log.info('DFU programmer is', dfuProgrammer);
 
-let DFUdevice = '';
-
-/**
- * Processing unit for flashing with dfu programmer
- * @param {hexidecimal} productID usb PID for atmel device
- * @param {string} processor processor submitted from api
- * @module programmers/dfuProgrammer
- */
-function dfuProgrammerFlash(productID, processor) {
-  if (processor) {
-    handler(productID, processor);
-  } else {
-    prompt(
-      {
-        title: 'Processor',
-        label: 'Please submit processor',
-        height: 150,
-        value: 'atmega32u4',
-      },
-      process.win
-    )
-      .then((r) => {
-        if (r === null) {
-          window.Bridge.statusAppend('No selection made flashing cancelled');
-        } else {
-          handler(productID, r);
-        }
-      })
-      .catch(log.error);
-  }
-}
-
-module.exports = {
-  dfuProgrammerFlash,
-};
-
-/**
- * handler
- * @param {string} productID
- * @param {string} _processor processor submitted from api
- * @module programmers/dfuProgrammer
- */
-async function handler(productID, _processor) {
-  console.log('processor: ', _processor);
-  found = false;
-  if (Object.keys(atmelDevices).includes(productID)) {
-    console.log(atmelDevices[productID]);
-    for (let i = 0; i < atmelDevices[productID].length; i++) {
-      dev = atmelDevices[productID][i];
-      if ((_processor == dev) & (found == false)) {
-        DFUdevice = _processor;
-        found = true;
-        window.Bridge.statusAppend(`Found USB Device ${DFUdevice}`);
-        await eraseChip();
-        console.log('errased device');
-        await flashChip();
-        console.log('flashed device');
-        await resetChip();
-        console.log(`flashing finnished`);
-        window.Bridge.statusAppend('  Successfully Flashed Keymap onto device');
-      } else if (i == atmelDevices[productID].length - 1) {
-        if (!found) {
-          window.Bridge.statusAppend(
-            'Please connect the Keyboard and press reset'
-          );
-        }
-      }
-    }
-  }
-}
-
 /**
  * Erase data from mcu
  * @return {Promise} reject - erase failed
  * @return {Promise} resolve - successfully erased mcu
  * @module programmers/dfuProgrammer
  */
-function eraseChip() {
+function eraseChip(device) {
   return new Promise(async (resolve, reject) => {
+    let command = '';
     if (process.platform == `win32`) {
-      command = `${dfuProgrammer} ${DFUdevice} erase --force`;
-    } else command = `${dfuProgrammer} ${DFUdevice} erase`;
+      command = `${dfuProgrammer} ${device} erase --force`;
+    } else {
+      command = `${dfuProgrammer} ${device} erase`;
+    }
     const regex = /.*Success.*\r?|\rChecking memory from .* Empty.*/;
     const {stderr} = await exec(command);
     window.Bridge.statusAppend(` ${stderr}`);
@@ -136,9 +69,9 @@ function eraseChip() {
  * @return {Promise} resolve - successfully flashed mcu
  * @module programmers/dfuProgrammer
  */
-function flashChip() {
+function flashChip(device) {
   return new Promise(async (resolve, reject) => {
-    command = `${dfuProgrammer} ${DFUdevice} flash ${window.inputPath}`;
+    const command = `${dfuProgrammer} ${device} flash ${window.inputPath}`;
     const {stderr} = await exec(command);
     window.Bridge.statusAppend(` ${stderr}`);
     if (
@@ -159,9 +92,9 @@ function flashChip() {
  * @return {Promise} resolve - successfully reset mcu
  * @see  programmers/dfuProgrammer
  */
-function resetChip() {
+function resetChip(device) {
   return new Promise(async (resolve, reject) => {
-    command = `${dfuProgrammer} ${DFUdevice} reset`;
+    const command = `${dfuProgrammer} ${device} reset`;
     const {stderr} = await exec(command);
     window.Bridge.statusAppend(` ${stderr}`);
     if (stderr === '') resolve(true);
@@ -170,4 +103,75 @@ function resetChip() {
       reject(new Error('Reset Failed'));
     }
   });
+}
+
+/**
+ * handler
+ * @param {string} productID
+ * @param {string} _processor processor submitted from api
+ * @module programmers/dfuProgrammer
+ */
+async function handler(productID, _processor) {
+  console.log('processor: ', _processor);
+  let found = false;
+  if (Object.keys(atmelDevices).includes(productID)) {
+    const searchList = atmelDevices[productID];
+    console.log(searchList);
+    for (let i = 0; i < searchList.length; i++) {
+      const dev = searchList[i];
+      if (_processor === dev && found === false) {
+        const DFUdevice = _processor;
+        found = true;
+        window.Bridge.statusAppend(`Found USB Device ${DFUdevice}`);
+        try {
+          await eraseChip(DFUdevice);
+          console.log('erased device');
+          await flashChip(DFUdevice);
+          console.log('flashed device');
+          await resetChip(DFUdevice);
+          console.log(`flashing finished`);
+        } catch (err) {
+          window.Bridge.statusAppend(`  Error Flashing ${err}`);
+          return err;
+        }
+        window.Bridge.statusAppend('  Successfully Flashed Keymap onto device');
+      } else if (i === searchList.length - 1) {
+        if (!found) {
+          window.Bridge.statusAppend(
+            'Please connect the Keyboard and press reset'
+          );
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Processing unit for flashing with dfu programmer
+ * @param {hexidecimal} productID usb PID for atmel device
+ * @param {string} processor processor submitted from api
+ * @module programmers/dfuProgrammer
+ */
+export function dfuProgrammerFlash(productID, processor) {
+  if (processor) {
+    handler(productID, processor);
+  } else {
+    prompt(
+      {
+        title: 'Processor',
+        label: 'Please submit processor',
+        height: 150,
+        value: 'atmega32u4',
+      },
+      process.win
+    )
+      .then((r) => {
+        if (r === null) {
+          window.Bridge.statusAppend('No selection made flashing cancelled');
+        } else {
+          handler(productID, r);
+        }
+      })
+      .catch(log.error);
+  }
 }
