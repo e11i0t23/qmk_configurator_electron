@@ -20,9 +20,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: update node-gyp
+      - name: config
         if: startsWith(matrix.os, 'windows')
-        run: yarn global add node-gyp@latest
+        run: 'yarn config set msbuild_path "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe"'
       # - name: Install windows build tools
       #   if: startsWith(matrix.os, 'windows')
       #   run: yarn global add windows-build-tools
