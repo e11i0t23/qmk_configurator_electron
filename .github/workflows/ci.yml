@@ -21,7 +21,9 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Install
-        run: yarn install
+        run: |
+        yarn install
+        yarn config set msvs_version 2017
       - name: Build
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
