@@ -58,7 +58,7 @@ function selector(processor) {
   const USBdevices = usb.getDeviceList();
   const USBdevicesQTY = USBdevices.length;
   for (const USBdevice of USBdevices) {
-    const vendorID = USBdevice.deviceDescriptor.idVendor.toString();
+    const vendorID = USBdevice.deviceDescriptor.idVendor;
     const productID = USBdevice.deviceDescriptor.idProduct;
     // Check if known VID for AVR/ARM programmers
     if (Object.keys(deviceIDs).includes(vendorID)) {
