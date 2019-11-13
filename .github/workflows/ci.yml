@@ -23,7 +23,6 @@ jobs:
       - name: Install windows build tools
         if: startsWith(matrix.os, 'windows')
         run: |
-          yarn add global windows-build-tools
           yarn add global node-gyp@latest
           yarn config set msvs_version 2015
           yarn config set python python2.7
