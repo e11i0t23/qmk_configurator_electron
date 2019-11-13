@@ -25,7 +25,7 @@ jobs:
       #   run: yarn global add node-gyp@latest
       - name: config
         if: startsWith(matrix.os, 'windows')
-        run: 'yarn config set msbuild_path "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\Current\Bin\MSBuild.exe"'
+        run: 'yarn config set msbuild_path "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\MSBuild.exe"'
       # - name: Install windows build tools
       #   if: startsWith(matrix.os, 'windows')
       #   run: yarn global add windows-build-tools
