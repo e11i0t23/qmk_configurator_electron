@@ -23,9 +23,9 @@ jobs:
       - name: update node-gyp
         if: startsWith(matrix.os, 'windows')
         run: yarn global add node-gyp@latest
-      - name: Install windows build tools
-        if: startsWith(matrix.os, 'windows')
-        run: yarn global add windows-build-tools
+      # - name: Install windows build tools
+      #   if: startsWith(matrix.os, 'windows')
+      #   run: yarn global add windows-build-tools
           # yarn config set msvs_version 2015
           # yarn config set python python2.7
       - name: Install
