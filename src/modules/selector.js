@@ -1,5 +1,6 @@
 import {dfuProgrammerFlash} from './programmers/dfu-programmer';
 import {stm32, kiibohd} from './programmers/dfu-util';
+import isUndefined from 'lodash/isUndefined';
 const {caterina, avrisp, USBtiny, USBasp} = require('./programmers/avrdude');
 const {tlc} = require('./programmers/teensy_loader_cli');
 const {atmelSamBa} = require('./programmers/mdloader');
@@ -61,8 +62,8 @@ function selector(processor) {
     const vendorID = USBdevice.deviceDescriptor.idVendor;
     const productID = USBdevice.deviceDescriptor.idProduct;
     // Check if known VID for AVR/ARM programmers
-    if (Object.keys(deviceIDs).includes(vendorID)) {
-      const programmer = deviceIDs[vendorID];
+    const programmer = deviceIDs[vendorID];
+    if (!isUndefined(programmer)) {
       // Forwards onto seperate programming scripts found in ./modules/programmers
       let mcu = '';
       switch (programmer) {
