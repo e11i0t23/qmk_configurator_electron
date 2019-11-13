@@ -13,8 +13,8 @@
     "watch": "tsc -w",
     "postinstall": "electron-builder install-app-deps",
     "start": "npm run build && electron ./dist/main.js",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder --publish onTagOrDraft"
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder --publish onTagOrDraft"
   },
   "build": {
     "extraFiles": [
