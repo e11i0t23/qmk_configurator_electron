@@ -22,7 +22,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: install Win build tools
         if: startsWith(matrix.os, 'windows')
-        run: yarn install -g node-gyp
+        run: yarn global add node-gyp
       - name: Build
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
