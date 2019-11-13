@@ -20,10 +20,11 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Install windows build tools
+        if: startsWith(matrix.os, 'windows')
+        run: yarn add global windows-build-tools
       - name: Install
-        run: |
-        yarn install
-        yarn config set msvs_version 2017
+        run: yarn install
       - name: Build
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
