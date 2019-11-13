@@ -130,7 +130,9 @@ function selector(processor) {
       break;
     } else if (USBdevice == USBdevices[USBdevicesQTY - 1]) {
       if (!window.Bridge.autoFlash)
-        window.Bridge.statusAppend('ERROR: No USB Device Found');
+        window.Bridge.statusAppend(
+          'ERROR: No USB Device Found. Try pressing reset on your keyboard'
+        );
       else
         window.Bridge.statusAppend(
           'ERROR: No USB Device Found Retrying in 5 secs'

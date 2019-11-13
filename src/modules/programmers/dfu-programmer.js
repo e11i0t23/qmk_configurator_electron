@@ -1,9 +1,9 @@
 import * as path from 'path';
-import * as util from 'util';
 import * as childProcess from 'child_process';
-const exec = util.promisify(childProcess.exec);
+const spawn = childProcess.spawn;
 import * as prompt from 'electron-prompt';
 import log from 'electron-log';
+import * as first from 'lodash/first';
 
 const atmelDevices = {
   12270: ['atmega8u2'],
@@ -41,25 +41,38 @@ log.info('DFU programmer is', dfuProgrammer);
  */
 function eraseChip(device) {
   return new Promise(async (resolve, reject) => {
-    let command = '';
+    let command = dfuProgrammer;
+    let args = [];
     if (process.platform == `win32`) {
-      command = `${dfuProgrammer} ${device} erase --force`;
+      args = [device, 'erase', '--force'];
     } else {
-      command = `${dfuProgrammer} ${device} erase`;
+      args = [device, 'erase'];
     }
     const regex = /.*Success.*\r?|\rChecking memory from .* Empty.*/;
-    const {stderr} = await exec(command);
-    window.Bridge.statusAppend(` ${stderr}`);
-    if (
-      regex.test(stderr) ||
-      stderr.includes('Chip already blank') ||
-      stderr == ''
-    ) {
-      resolve(true);
-    } else {
-      window.Bridge.statusAppend('Erase Failed');
-      reject(new Error('Erase Failed'));
-    }
+    const eraser = spawn(command, args);
+    const stderr = [];
+    eraser.stdout.on('data', (data) => {
+      window.Bridge.statusAppend(` ${data}`);
+    });
+    eraser.stderr.on('data', (data) => {
+      stderr.push(data);
+    });
+    eraser.on('exit', (code /*, signal*/) => {
+      const str = stderr.join('');
+      if (
+        code === 0 ||
+        regex.test(str) ||
+        str.includes('Chip already blank') ||
+        str === ''
+      ) {
+        window.Bridge.statusAppend('Erase Succeeded');
+        resolve(true);
+      } else {
+        window.Bridge.statusAppend('Erase Failed');
+        window.Bridge.statusAppend(` ${str}`);
+        reject(new Error('Erase Failed'));
+      }
+    });
   });
 }
 
@@ -71,18 +84,23 @@ function eraseChip(device) {
  */
 function flashChip(device) {
   return new Promise(async (resolve, reject) => {
-    const command = `${dfuProgrammer} ${device} flash ${window.inputPath}`;
-    const {stderr} = await exec(command);
-    window.Bridge.statusAppend(` ${stderr}`);
-    if (
-      stderr.includes('Validating...  Success') ||
-      stderr.includes(' bytes used (')
-    ) {
-      resolve(true);
-    } else {
-      window.Bridge.statusAppend('Flashing Failed');
-      reject(new Error('Flash Failed'));
-    }
+    const command = dfuProgrammer;
+    const args = [device, 'flash', window.inputPath];
+    const flasher = spawn(command, args);
+    const stderr = [];
+    window.Bridge.statusAppend('');
+    flasher.stderr.on('data', (data) => {
+      stderr.push(data);
+      window.Bridge.statusAppendNoLF(`${data}`);
+    });
+    flasher.on('exit', (code) => {
+      if (code === 0) {
+        resolve(true);
+      } else {
+        window.Bridge.statusAppend('Flashing Failed');
+        reject(new Error('Flash Failed'));
+      }
+    });
   });
 }
 
@@ -94,14 +112,22 @@ function flashChip(device) {
  */
 function resetChip(device) {
   return new Promise(async (resolve, reject) => {
-    const command = `${dfuProgrammer} ${device} reset`;
-    const {stderr} = await exec(command);
-    window.Bridge.statusAppend(` ${stderr}`);
-    if (stderr === '') resolve(true);
-    else {
-      window.Bridge.statusAppend('Reset Failed');
-      reject(new Error('Reset Failed'));
-    }
+    const command = dfuProgrammer;
+    const args = [device, 'reset'];
+    const resetter = spawn(command, args);
+    const stderr = [];
+    resetter.stderr.on('data', (data) => {
+      stderr.push(data);
+    });
+    resetter.on('exit', (code) => {
+      window.Bridge.statusAppend(` ${stderr.join()}`);
+      if (code === 0) {
+        resolve(true);
+      } else {
+        window.Bridge.statusAppend('Reset Failed');
+        reject(new Error('Reset Failed'));
+      }
+    });
   });
 }
 
@@ -156,15 +182,12 @@ export function dfuProgrammerFlash(productID, processor) {
   if (processor) {
     handler(productID, processor);
   } else {
-    prompt(
-      {
-        title: 'Processor',
-        label: 'Please submit processor',
-        height: 150,
-        value: 'atmega32u4',
-      },
-      process.win
-    )
+    prompt({
+      title: 'Processor',
+      label: 'Please submit processor',
+      height: 150,
+      value: first(atmelDevices[productID]),
+    })
       .then((r) => {
         if (r === null) {
           window.Bridge.statusAppend('No selection made flashing cancelled');

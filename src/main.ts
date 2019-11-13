@@ -21,7 +21,9 @@ function createWindow() {
     width: 1200,
   });
   // process.win = win;
-  win.loadURL('https://config.qmk.fm');
+  let url = 'https://config.qmk.fm';
+  //url = 'http://localhost:8080';
+  win.loadURL(url);
   // win.loadFile('./dist/index.html')
   if (process.defaultApp) {
     win.webContents.openDevTools();

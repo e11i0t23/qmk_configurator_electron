@@ -90,6 +90,7 @@
     "electron-updater": "^4.1.2",
     "follow-redirects": "^1.7.0",
     "hid-listen": "github:zvecr/hid-listen",
+    "lodash": "^4.17.15",
     "node-abi": "^2.12.0",
     "path": "^0.12.7",
     "serialport": "^8.0.5",
