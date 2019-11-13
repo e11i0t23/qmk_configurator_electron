@@ -51,9 +51,7 @@ function eraseChip(device: string) {
     const eraser = spawn(command, args);
     const stderr: string[] = [];
 
-    eraser.stderr.on('data', (data) => {
-      stderr.push(data);
-    });
+    eraser.stderr.on('data', stderr.push);
 
     eraser.on('exit', (code /*, signal*/) => {
       const str = stderr.join('');
@@ -88,9 +86,7 @@ function flashChip(device: string) {
     // add a linefeed to console output
     window.Bridge.statusAppend('');
 
-    flasher.stderr.on('data', (data) => {
-      window.Bridge.statusAppendNoLF(data);
-    });
+    flasher.stderr.on('data', window.Bridge.statusAppendNoLF);
 
     flasher.on('exit', (code) => {
       if (code === 0) {
@@ -116,9 +112,7 @@ function resetChip(device: string) {
     const resetter = spawn(command, args);
     const stderr: string[] = [];
 
-    resetter.stderr.on('data', (data) => {
-      stderr.push(data);
-    });
+    resetter.stderr.on('data', stderr.push);
     resetter.on('exit', (code) => {
       window.Bridge.statusAppend(` ${stderr.join()}`);
       if (code === 0) {
