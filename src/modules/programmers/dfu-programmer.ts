@@ -4,6 +4,7 @@ const spawn = childProcess.spawn;
 import prompt from 'electron-prompt';
 import log from 'electron-log';
 import first from 'lodash/first';
+import {Methods} from '../types';
 
 const atmelDevices: Map<number, Array<string>> = new Map([
   [12270, ['atmega8u2']],
@@ -190,4 +191,8 @@ export function dfuProgrammerFlash(productID: number, processor: string): void {
       })
       .catch(log.error);
   }
+}
+
+export function methods(): Methods {
+  return {};
 }

@@ -5,7 +5,10 @@ import * as path from 'path';
 import {newStateMachine} from './modules/state-machine';
 import visualize from 'javascript-state-machine/lib/visualize';
 
-console.log(visualize(newStateMachine()));
+const fsm = newStateMachine();
+console.log(visualize(fsm));
+
+fsm.ready();
 
 let win: Electron.BrowserWindow; // Global ref og window object
 // const HIDListen = require('hid-listen');

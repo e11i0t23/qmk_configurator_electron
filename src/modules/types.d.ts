@@ -65,13 +65,13 @@ export interface Methods {
 }
 
 export interface Options {
-  name: string;
+  name?: string;
   past?: string;
   future?: string;
-  init: string;
+  init?: string;
   max?: number; // max history
   state?: string;
-  transitions: Transition[];
+  transitions?: Transition[];
   methods?: Methods;
   data?: any; // {} | any[] | ((...args: any[]) => {} | any[]);
   plugins?: any[];

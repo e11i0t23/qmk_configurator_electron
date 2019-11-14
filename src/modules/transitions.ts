@@ -1,9 +1,9 @@
 import {Transition} from './types';
 
-// EVENTS
+// Transitions
 export const EV_READY = 'READY';
 export const EV_TIMED_OUT = 'TIMED-OUT';
-export const EV_ERRORED = 'ERROED';
+export const EV_ERRORED = 'ERRORED';
 export const EV_ERASED = 'ERASED';
 export const EV_FLASHED = 'FLASHED';
 export const EV_RESTARTED = 'RESTARTED';
