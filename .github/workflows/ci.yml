@@ -25,7 +25,16 @@ jobs:
         run: 'yarn config set msbuild_path "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\MSBuild.exe"'
       - name: Install
         run: yarn install
+      - name: Prettier
+        if: startsWith(matrix.os, 'ubuntu')
+        run: yarn prettier
+      - name: Lint
+        if: startsWith(matrix.os, 'ubuntu')
+        run: yarn lint
       - name: Build
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: yarn dist
+      - name: Upload artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: build ${{ matrix.os }}
+          path: release

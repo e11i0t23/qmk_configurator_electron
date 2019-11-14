@@ -90,7 +90,7 @@ autoUpdater.on('update-downloaded', (info) => {
   sendStatusToWindow(`Update downloaded ${info}`);
 });
 
-app.on('browser-window-created', (event, win) => {});
+// app.on('browser-window-created', (event, win) => {});
 
 app.on('ready', () => {
   autoUpdater.checkForUpdatesAndNotify();

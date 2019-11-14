@@ -11,10 +11,13 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
+    "prettier": "prettier -c \"./src/**/*.{ts,js}\"",
+    "prettier:fix": "prettier -c \"./src/**/*.{ts,js}\" --write",
+    "lint": "eslint --ext .ts src",
     "postinstall": "electron-builder install-app-deps",
     "start": "npm run build && electron ./dist/main.js",
     "pack": "npm run build && electron-builder --dir",
-    "dist": "npm run build && electron-builder --publish never"
+    "dist": "npm run build && electron-builder"
   },
   "build": {
     "extraFiles": [
