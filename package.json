@@ -1,22 +1,24 @@
 {
   "name": "qmk_configurator_electron",
   "version": "0.1.0",
-  "main": "./src/main.js",
+  "main": "dist/main.js",
   "author": {
-    "name": "ELliot Powell",
+    "name": "Elliot Powell",
     "email": "johnp8727@gmail.com"
   },
   "description": "A layout building and flashing tool for QMK firmware",
   "repository": "https://github.com/e11i0t23/qmk_configurator_electron.git",
   "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
     "postinstall": "electron-builder install-app-deps",
-    "start": "electron ./src/main",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder --publish never"
+    "start": "npm run build && electron ./dist/main.js",
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder --publish never"
   },
   "build": {
     "extraFiles": [
-      "programmers"
+      "programmers/**/*"
     ],
     "directories": {
       "output": "release"
@@ -32,7 +34,6 @@
       "category": "Utility",
       "target": [
         "deb",
-        "apk",
         "pacman",
         "tar.xz"
       ]
@@ -63,26 +64,44 @@
       "afterInstall": "./build/postinstall.sh"
     },
     "files": [
-      "src/",
-      "package.json"
+      "dist/**/*",
+      "node_modules/**/*"
     ]
   },
   "devDependencies": {
+    "@types/electron-prompt": "^1.3.0",
+    "@types/lodash": "^4.14.146",
+    "@types/node": "^12.12.7",
+    "@types/usb": "^1.5.1",
+    "@typescript-eslint/eslint-plugin": "^2.7.0",
+    "@typescript-eslint/eslint-plugin-tslint": "^2.7.0",
+    "@typescript-eslint/parser": "^2.7.0",
     "avrgirl-arduino": "^3.0.2",
     "electron": "^7.1.1",
     "electron-builder": "22.1.0",
+    "electron-builder-squirrel-windows": "^22.1.0",
     "electron-rebuild": "^1.8.6",
     "eslint": "^5.16.0",
     "eslint-config-google": "^0.13.0",
-    "jsdoc": "^3.6.3"
+    "eslint-config-prettier": "^6.5.0",
+    "eslint-plugin-prettier": "^3.1.1",
+    "jsdoc": "^3.6.3",
+    "prettier": "^1.19.1",
+    "typescript": "^3.7.2"
   },
   "dependencies": {
-    "electron-log": "^3.0.7",
+    "@serialport/bindings": "3",
+    "@types/serialport": "^7.0.4",
+    "electron-log": "^3.0.9",
     "electron-prompt": "^1.4.0",
     "electron-updater": "^4.1.2",
     "follow-redirects": "^1.7.0",
+    "global": "^4.4.0",
     "hid-listen": "github:zvecr/hid-listen",
+    "install": "^0.13.0",
+    "lodash": "^4.17.15",
     "node-abi": "^2.12.0",
+    "path": "^0.12.7",
     "serialport": "^8.0.5",
     "temp": "^0.9.0",
     "usb": "^1.6.0"

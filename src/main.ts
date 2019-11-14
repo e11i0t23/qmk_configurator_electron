@@ -1,42 +1,47 @@
-const {app, BrowserWindow} = require('electron');
-const path = require('path');
-const {autoUpdater} = require('electron-updater');
-const log = require('electron-log');
-let win; // Global ref og window object
+import {app, BrowserWindow} from 'electron';
+import log from 'electron-log';
+import {autoUpdater} from 'electron-updater';
+import * as path from 'path';
+
+let win: Electron.BrowserWindow; // Global ref og window object
 // const HIDListen = require('hid-listen');
 
 /**
  * Initialize our app window
  * @module main
  */
-function createWindow() {
+function createWindow(): void {
   win = new BrowserWindow({
-    width: 1200,
     height: 800,
     webPreferences: {
+      allowRunningInsecureContent: true,
       nodeIntegration: false,
       preload: path.join(__dirname, 'preload.js'),
-      allowRunningInsecureContent: true,
     },
+    width: 1200,
   });
-  process.win = win;
-  win.loadURL('https://config.qmk.fm');
+  // process.win = win;
+  let url = 'https://config.qmk.fm';
+  //url = 'http://localhost:8080';
+  win.loadURL(url);
   // win.loadFile('./dist/index.html')
-  if (process.defaultApp) {
-    win.webContents.openDevTools();
-  }
   // Emitted when the window is closed.
+  if (process.defaultApp) {
+    win.webContents.once('dom-ready', () => {
+      win.webContents.openDevTools();
+    });
+  }
   win.on('closed', () => {
     win = null;
   });
-  console.log('opening app');
+  log.info('opening app');
 }
 
 /**
  * Logging function
  * @param {string} text Used for logging to a text file
  */
-function sendStatusToWindow(text) {
+function sendStatusToWindow(text: string): void {
   log.info(text);
   win.webContents.send('message', text);
 }
@@ -66,31 +71,27 @@ app.on('activate', () => {
 autoUpdater.on('checking-for-update', () => {
   sendStatusToWindow('Checking for update...');
 });
-autoUpdater.on('update-available', info => {
+autoUpdater.on('update-available', () => {
   sendStatusToWindow('Update available.');
 });
-autoUpdater.on('update-not-available', info => {
+autoUpdater.on('update-not-available', () => {
   sendStatusToWindow('Update not available.');
 });
-autoUpdater.on('error', err => {
-  sendStatusToWindow('Error in auto-updater. ' + err);
+autoUpdater.on('error', (err: string) => {
+  sendStatusToWindow(`Error in auto-updater. ${err}`);
 });
-autoUpdater.on('download-progress', progressObj => {
-  let log_message = 'Download speed: ' + progressObj.bytesPerSecond;
-  log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
-  log_message =
-    log_message +
-    ' (' +
-    progressObj.transferred +
-    '/' +
-    progressObj.total +
-    ')';
-  sendStatusToWindow(log_message);
+autoUpdater.on('download-progress', (progressObj) => {
+  const logMessage = [`Download speed: ${progressObj.bytesPerSecond}`];
+  logMessage.push(` - Downloaded ${progressObj.percent}%`);
+  logMessage.push(` (${progressObj.transferred}/${progressObj.total})`);
+  sendStatusToWindow(logMessage.join(''));
 });
-autoUpdater.on('update-downloaded', info => {
-  sendStatusToWindow('Update downloaded');
+autoUpdater.on('update-downloaded', (info) => {
+  sendStatusToWindow(`Update downloaded ${info}`);
 });
 
-app.on('ready', function() {
+app.on('browser-window-created', (event, win) => {});
+
+app.on('ready', () => {
   autoUpdater.checkForUpdatesAndNotify();
 });

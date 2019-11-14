@@ -1,27 +1,30 @@
-const temp = require('temp');
-const path = require('path');
-const selector = require('./modules/selector');
-const https = require('follow-redirects').https;
-const fs = require('fs');
-const {dialog} = require('electron').remote;
+import * as temp from 'temp';
+import * as path from 'path';
+import * as selector from './modules/selector';
+import {https} from 'follow-redirects';
+import * as fs from 'fs';
+import {remote} from 'electron';
+import log from 'electron-log';
 
 temp.track();
 
 /**
  * Download keymap from API before initiating programmer selection
- * @param {String} url URL from compiler API for file download
- * @param {String} keyboard Name of keyboard
- * @param {String} filename Name of file to save download to
+ * @param {string} url URL from compiler API for file download
+ * @param {string} keyboard Name of keyboard
+ * @param {string} filename Name of file to save download to
  * @module window.Bridge
+ * @returns void
  */
-async function flashURL(url, keyboard, filename) {
+export function flashURL(url, keyboard, filename) {
   console.log(url, keyboard, filename);
   temp.mkdir('qmkconfigurator', function(err, dirPath) {
     window.tempFolder = dirPath;
     window.Bridge.statusAppend('----STARTING URL FLASHING PROCEDURES----');
     window.inputPath = path.join(dirPath, filename);
-    console.log(window.inputPath);
-    pipeFile = fs.createWriteStream(window.inputPath);
+    const inputPath = window.inputPath;
+    console.log(inputPath);
+    const pipeFile = fs.createWriteStream(inputPath);
     https
       .get(url, function(response) {
         response.pipe(pipeFile);
@@ -33,22 +36,25 @@ async function flashURL(url, keyboard, filename) {
       })
       .on('error', function(err) {
         // Handle errors
-        fs.unlink(imputPath); // Delete the file async. (But we don't check the result)
+        log.error(err);
+        fs.unlink(inputPath); // Delete the file async. (But we don't check the result)
       });
   });
 }
 
 /**
  * Flash a custom file
+ * @returns void
  */
-async function flashFile() {
+export function flashFile() {
   window.Bridge.statusAppend('----STARTING FILE FLASHING PROCEDURES----');
+  const {dialog} = remote;
   dialog
-    .showOpenDialog(process.win, {
+    .showOpenDialog({
       filters: [{name: '.bin, .hex', extensions: ['bin', 'hex']}],
       properties: ['openFile'],
     })
-    .then(({canceled, filePaths, bookmarks}) => {
+    .then(({canceled, filePaths}) => {
       if (canceled) {
         window.Bridge.statusAppend('Flash Cancelled');
         return;
@@ -60,8 +66,3 @@ async function flashFile() {
       }
     });
 }
-
-module.exports = {
-  flashURL,
-  flashFile,
-};
