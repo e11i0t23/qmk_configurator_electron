@@ -17,14 +17,14 @@ const deviceIDs: Map<number, string> = new Map([
   [0x16c0, 'avrisp/usbasp'],
   [0x1781, 'usbtiny'],
 ]);
-let flashing: Boolean = false;
+let flashing = false;
 
 /**
  * Selects the programmer to use
  * @param {String} processor
  * @module selector
  */
-function selector(processor?: string) {
+function selector(processor?: string): void {
   const USBdevices = usb.getDeviceList();
   const USBdevicesQTY = USBdevices.length;
   for (const USBdevice of USBdevices) {
@@ -64,7 +64,7 @@ function selector(processor?: string) {
               window.Bridge.statusAppend('Using avrdude to flash avrisp');
               avrisp(mcu);
             }
-            if (productID == 0x05DC) {
+            if (productID == 0x05dc) {
               window.Bridge.statusAppend('Using avrdude to flash USBasp');
               USBasp(mcu);
             }
@@ -121,26 +121,30 @@ function selector(processor?: string) {
  * @param {String} processor Takes a processor name from form
  * @member selector
  */
-export function routes(keyboard: string, processor: string) {
+export function routes(keyboard: string): void {
   console.log(keyboard);
   window.Bridge.autoFlash = false;
   flashing = false;
   if (keyboard != null) {
     window.Bridge.autoFlash = true;
-    fetch('http://api.qmk.fm/v1/keyboards/' + keyboard)
-      .then((res) => res.json())
-      .then((data) => data.keyboards[keyboard].processor)
-      .then((processor) => {
-        flashing = false;
-        selector(processor);
-        console.log('Auto Flash: ', window.Bridge.autoFlash);
-        if (window.Bridge.autoFlash) {
-          while (!flashing) {
-            setTimeout(() => selector(processor), 5000);
+    try {
+      fetch('http://api.qmk.fm/v1/keyboards/' + keyboard)
+        .then((res) => res.json())
+        .then((data) => data.keyboards[keyboard].processor)
+        .then((processor) => {
+          flashing = false;
+          selector(processor);
+          console.log('Auto Flash: ', window.Bridge.autoFlash);
+          if (window.Bridge.autoFlash) {
+            while (!flashing) {
+              setTimeout(() => selector(processor), 5000);
+            }
           }
-        }
-      })
-      .catch((err) => console.error(err));
+        })
+        .catch((err) => console.error(err));
+    } catch (err) {
+      console.error(err);
+    }
   } else {
     selector();
   }

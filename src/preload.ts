@@ -10,12 +10,19 @@ declare global {
   }
 }
 
-init();
+function setDockBadge(count: number): void {
+  console.log(count);
+  if (process.platform === 'darwin') {
+    // Coerce count into a string. Passing an empty string makes the badge disappear.
+    remote.app.dock.setBadge('' + (count || ''));
+  }
+}
+
 /**
  * Function called when connecting to website to expose Bridge API
  * @module preload
  */
-function init() {
+function init(): void {
   // Expose a bridging API to by setting an global on `window`.
   // We'll add methods to it here first, and when the remote web app loads,
   // it'll add some additional methods as well.
@@ -44,10 +51,5 @@ function init() {
  * @param {Number} count Value to set badge to
  * @module window.Bridge
  */
-function setDockBadge(count: number) {
-  console.log(count);
-  if (process.platform === 'darwin') {
-    // Coerce count into a string. Passing an empty string makes the badge disappear.
-    remote.app.dock.setBadge('' + (count || ''));
-  }
-}
+
+init();

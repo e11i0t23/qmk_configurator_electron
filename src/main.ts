@@ -10,7 +10,7 @@ let win: Electron.BrowserWindow; // Global ref og window object
  * Initialize our app window
  * @module main
  */
-function createWindow() {
+function createWindow(): void {
   win = new BrowserWindow({
     height: 800,
     webPreferences: {
@@ -39,7 +39,7 @@ function createWindow() {
  * Logging function
  * @param {string} text Used for logging to a text file
  */
-function sendStatusToWindow(text: string) {
+function sendStatusToWindow(text: string): void {
   log.info(text);
   win.webContents.send('message', text);
 }
@@ -85,7 +85,7 @@ autoUpdater.on('download-progress', (progressObj) => {
   sendStatusToWindow(logMessage.join(''));
 });
 autoUpdater.on('update-downloaded', (info) => {
-  sendStatusToWindow('Update downloaded');
+  sendStatusToWindow('Update downloaded', info);
 });
 
 app.on('ready', () => {

@@ -4,6 +4,7 @@ import * as selector from './modules/selector';
 import {https} from 'follow-redirects';
 import * as fs from 'fs';
 import {remote} from 'electron';
+import log from 'electron-log';
 
 temp.track();
 
@@ -21,8 +22,9 @@ export function flashURL(url, keyboard, filename) {
     window.tempFolder = dirPath;
     window.Bridge.statusAppend('----STARTING URL FLASHING PROCEDURES----');
     window.inputPath = path.join(dirPath, filename);
-    console.log(window.inputPath);
-    pipeFile = fs.createWriteStream(window.inputPath);
+    const inputPath = window.inputPath;
+    console.log(inputPath);
+    const pipeFile = fs.createWriteStream(inputPath);
     https
       .get(url, function(response) {
         response.pipe(pipeFile);
@@ -34,7 +36,8 @@ export function flashURL(url, keyboard, filename) {
       })
       .on('error', function(err) {
         // Handle errors
-        fs.unlink(imputPath); // Delete the file async. (But we don't check the result)
+        log.error(err);
+        fs.unlink(inputPath); // Delete the file async. (But we don't check the result)
       });
   });
 }
