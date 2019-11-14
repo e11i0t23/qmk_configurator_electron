@@ -2,6 +2,9 @@ import {app, BrowserWindow} from 'electron';
 import log from 'electron-log';
 import {autoUpdater} from 'electron-updater';
 import * as path from 'path';
+import {newStateMachine} from './modules/state-machine';
+
+console.log(newStateMachine());
 
 let win: Electron.BrowserWindow; // Global ref og window object
 // const HIDListen = require('hid-listen');
