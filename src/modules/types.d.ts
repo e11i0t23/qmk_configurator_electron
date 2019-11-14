@@ -66,15 +66,15 @@ export interface Methods {
 
 export interface Options {
   name: string;
-  past: string;
-  future: string;
+  past?: string;
+  future?: string;
   init: string;
-  max: number; // max history
-  state: string;
+  max?: number; // max history
+  state?: string;
   transitions: Transition[];
-  methods: Methods;
-  data: any; // {} | any[] | ((...args: any[]) => {} | any[]);
-  plugins: any[];
+  methods?: Methods;
+  data?: any; // {} | any[] | ((...args: any[]) => {} | any[]);
+  plugins?: any[];
 }
 
 export interface IFSM {
