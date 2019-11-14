@@ -39,8 +39,11 @@ function runAvrdude(
   return avrduder;
 }
 
-async function flash(args: Array<string>, vendorIDs: Array<string>) {
-  SerialPort.list()
+async function flash(
+  args: Array<string>,
+  vendorIDs: Array<string>
+): Promise<any> {
+  return SerialPort.list()
     .then(function(ports) {
       console.log(ports);
       const idx = ports.findIndex((port) => vendorIDs.includes(port.vendorId));
@@ -61,18 +64,18 @@ function argBuilder(
   return ['-p', mcu, '-c', protocol, '-U', `flash:w:${filepath}:i`];
 }
 
-export function caterina(mcu: string) {
+export function caterina(mcu: string): Promise<any> {
   const vendorIDs = ['2341', '1B4F', '239a'];
   const args = argBuilder(mcu, 'avr109', window.inputPath);
   return flash(args, vendorIDs);
 }
-export function avrisp(mcu: string) {
+export function avrisp(mcu: string): Promise<any> {
   const vendorIDs = ['16C0'];
   const args = argBuilder(mcu, 'avrisp', window.inputPath);
   return flash(args, vendorIDs);
 }
-export function USBasp(mcu: string) {
-  prompt({
+export function USBasp(mcu: string): Promise<any> {
+  return prompt({
     title: 'Processor',
     label: 'Please submit processor',
     height: 150,
@@ -89,8 +92,8 @@ export function USBasp(mcu: string) {
     .catch(console.error);
 }
 
-export function USBtiny(mcu: string) {
-  prompt({
+export function USBtiny(mcu: string): Promise<any> {
+  return prompt({
     title: 'Processor',
     label: 'Please submit processor',
     height: 150,

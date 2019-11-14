@@ -1,5 +1,6 @@
 import * as path from 'path';
 import childProcess from 'child_process';
+import log from 'electron-log';
 
 const spawn = childProcess.spawn;
 
@@ -14,7 +15,9 @@ if (process.platform === 'win32') {
   dfuUtil = 'dfu-util';
 }
 
-export function stm32() {
+log.info(`dfuUtil found at ${dfuUtil}`);
+
+export function stm32(): void {
   const firmware = window.inputPath;
   console.log(firmware);
   if (firmware.endsWith('bin')) {
@@ -41,7 +44,7 @@ export function stm32() {
   }
 }
 
-export function kiibohd() {
+export function kiibohd(): void {
   const f = window.inputPath;
   if (f.endsWith('bin')) {
     const command = dfuUtil;
