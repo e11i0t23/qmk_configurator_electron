@@ -39,7 +39,7 @@ log.info('DFU programmer is', dfuProgrammer);
  * @return {Promise} resolve - successfully erased mcu
  * @module programmers/dfuProgrammer
  */
-function eraseChip(device: string) {
+function eraseChip(device: string): Promise<boolean | Error> {
   return new Promise((resolve, reject) => {
     let command = dfuProgrammer;
     let args = [device, 'erase'];
@@ -77,7 +77,7 @@ function eraseChip(device: string) {
  * @return {Promise} flash failed resolve or successfully flashed mcu
  * @module programmers/dfuProgrammer
  */
-function flashChip(device: string) {
+function flashChip(device: string): Promise<boolean | Error> {
   return new Promise((resolve, reject) => {
     const command = dfuProgrammer;
     const args = [device, 'flash', window.inputPath];
@@ -105,7 +105,7 @@ function flashChip(device: string) {
  * @return {Promise} resolve - successfully reset mcu
  * @see  programmers/dfuProgrammer
  */
-function resetChip(device: string) {
+function resetChip(device: string): Promise<boolean | Error> {
   return new Promise((resolve, reject) => {
     const command: string = dfuProgrammer;
     const args = [device, 'reset'];
@@ -131,7 +131,10 @@ function resetChip(device: string) {
  * @param {string} _processor processor submitted from api
  * @module programmers/dfuProgrammer
  */
-async function handler(productID: number, processor: string) {
+async function handler(
+  productID: number,
+  processor: string
+): Promise<boolean | Error> {
   console.log('processor: ', processor);
   if (atmelDevices.has(productID)) {
     const searchList = atmelDevices.get(productID);
@@ -157,7 +160,9 @@ async function handler(productID: number, processor: string) {
     } else {
       window.Bridge.statusAppend('Please connect the Keyboard and press reset');
     }
+    return true;
   }
+  return false;
 }
 
 /**
@@ -166,7 +171,7 @@ async function handler(productID: number, processor: string) {
  * @param {string} processor processor submitted from api
  * @module programmers/dfuProgrammer
  */
-export function dfuProgrammerFlash(productID: number, processor: string) {
+export function dfuProgrammerFlash(productID: number, processor: string): void {
   if (processor) {
     handler(productID, processor);
   } else {

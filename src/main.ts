@@ -25,9 +25,6 @@ function createWindow(): void {
   //url = 'http://localhost:8080';
   win.loadURL(url);
   // win.loadFile('./dist/index.html')
-  if (process.defaultApp) {
-    win.webContents.openDevTools();
-  }
   // Emitted when the window is closed.
   win.on('closed', () => {
     win = null;
@@ -85,7 +82,15 @@ autoUpdater.on('download-progress', (progressObj) => {
   sendStatusToWindow(logMessage.join(''));
 });
 autoUpdater.on('update-downloaded', (info) => {
-  sendStatusToWindow('Update downloaded', info);
+  sendStatusToWindow(`Update downloaded ${info}`);
+});
+
+app.on('browser-window-created', (event, win) => {
+  if (process.defaultApp) {
+    win.webContents.once('dom-ready', () => {
+      win.webContents.openDevTools();
+    });
+  }
 });
 
 app.on('ready', () => {
