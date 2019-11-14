@@ -17,9 +17,11 @@
     "postinstall": "electron-builder install-app-deps",
     "start": "npm run build && electron ./dist/main.js",
     "pack": "npm run build && electron-builder --dir",
-    "dist": "npm run build && electron-builder"
+    "dist": "npm run build && electron-builder",
+    "clean-release": "node scripts/clean-release.js"
   },
   "build": {
+    "artifactName": "qmk-configurator-${os}-${version}.${ext}",
     "extraFiles": [
       "programmers/**/*"
     ],
@@ -90,6 +92,7 @@
     "eslint-plugin-prettier": "^3.1.1",
     "jsdoc": "^3.6.3",
     "prettier": "^1.19.1",
+    "rimraf": "^3.0.0",
     "typescript": "^3.7.2"
   },
   "dependencies": {
