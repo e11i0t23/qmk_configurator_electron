@@ -37,4 +37,4 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: build ${{ matrix.os }}
-          path: release
+          path: release/*.zip
