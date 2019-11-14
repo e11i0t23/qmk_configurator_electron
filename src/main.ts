@@ -26,6 +26,11 @@ function createWindow(): void {
   win.loadURL(url);
   // win.loadFile('./dist/index.html')
   // Emitted when the window is closed.
+  if (process.defaultApp) {
+    win.webContents.once('dom-ready', () => {
+      win.webContents.openDevTools();
+    });
+  }
   win.on('closed', () => {
     win = null;
   });
@@ -85,13 +90,7 @@ autoUpdater.on('update-downloaded', (info) => {
   sendStatusToWindow(`Update downloaded ${info}`);
 });
 
-app.on('browser-window-created', (event, win) => {
-  if (process.defaultApp) {
-    win.webContents.once('dom-ready', () => {
-      win.webContents.openDevTools();
-    });
-  }
-});
+app.on('browser-window-created', (event, win) => {});
 
 app.on('ready', () => {
   autoUpdater.checkForUpdatesAndNotify();
