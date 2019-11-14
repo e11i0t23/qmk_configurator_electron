@@ -10,12 +10,15 @@
     },
     "extends": [
       "plugin:@typescript-eslint/recommended",
+      "prettier/@typescript-eslint", // Uses eslint-config-prettier to disable ESLint rules from @typescript-eslint/eslint-plugin that would conflict with prettier
+      "plugin:prettier/recommended",
       "eslint:recommended"
     ],
     "globals": {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly",
-        "window": "readwrite"
+        "window": "readwrite",
+        "fetch": "readwrite"
     },
     "parserOptions": {
         "ecmaVersion": 2018,
