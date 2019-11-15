@@ -5,7 +5,7 @@ import {StateMachine, Options} from './types';
 import transitions from './transitions';
 import {WAITING} from './transitions';
 
-const debug = true;
+const debug = false;
 
 const defaultOptions: Options = {
   name: 'flashStateMachine',
@@ -17,6 +17,12 @@ const defaultOptions: Options = {
     };
   },
   methods: {
+    // Override this with erasing function
+    validator: function(): PromiseLike<boolean | Error> {
+      return new Promise((resolve) => {
+        resolve(true);
+      });
+    },
     // Override this with erasing function
     eraser: function(): PromiseLike<boolean | Error> {
       return new Promise((resolve) => {
@@ -42,22 +48,36 @@ const defaultOptions: Options = {
     succeeder: function(result: any): void {
       console.log(result);
     },
+    onEnterValidating: function(): PromiseLike<boolean | Error> {
+      const errored = this.errored.bind(this);
+      const validated = this.validated.bind(this);
+      return this.validator()
+        .then(() => {
+          setTimeout(validated, 0);
+        })
+        .catch(() => {
+          this.error = 'Unsupported bootloader';
+          setTimeout(errored, 0);
+        }) as PromiseLike<boolean | Error>;
+    },
     onEnterErasing: function(): PromiseLike<boolean | Error> {
       debug && console.log('erase runs now');
       const erased = this.erased.bind(this);
+      const errored = this.errored.bind(this);
       return this.eraser()
         .then(() => {
           debug && console.log('erased');
           setTimeout(erased, 0);
         })
         .catch((err: string) => {
-          setTimeout(this.failed, 0);
           this.error = new Error(err);
+          setTimeout(errored, 0);
           console.log('crashed', err);
         });
     },
     onEnterFlashing: function(): PromiseLike<boolean | Error> {
       debug && console.log('flash runs now');
+      const errored = this.errored.bind(this);
       const flashed = this.flashed.bind(this);
       return this.flasher()
         .then(() => {
@@ -65,7 +85,7 @@ const defaultOptions: Options = {
           setTimeout(flashed, 0);
         })
         .catch((err: string) => {
-          setTimeout(this.failed, 0);
+          setTimeout(errored, 0);
           this.error = new Error(err);
           console.log('crashed', err);
         });
@@ -73,19 +93,20 @@ const defaultOptions: Options = {
     onEnterRestarting: function(): PromiseLike<boolean | Error> {
       debug && console.log('restarting');
       const restarted = this.restarted.bind(this);
+      const errored = this.errored.bind(this);
       return this.restarter()
         .then(() => {
           debug && console.log('restarted');
           setTimeout(restarted, 0);
         })
         .catch((err: string) => {
-          setTimeout(this.failed, 0);
+          setTimeout(errored, 0);
           this.error = new Error(err);
           console.log('crashed', err);
         });
     },
     onEnterFailed: function(): void {
-      this.failer(this.error);
+      this.failer();
       debug && console.log('failed', this.error);
     },
     onEnterSuccess: function(): void {

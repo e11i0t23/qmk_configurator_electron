@@ -4,7 +4,8 @@ const spawn = childProcess.spawn;
 import prompt from 'electron-prompt';
 import log from 'electron-log';
 import first from 'lodash/first';
-import {Methods} from '../types';
+import {FlashWriter, Methods} from '../types';
+import {newStateMachine} from '../state-machine';
 
 const atmelDevices: Map<number, Array<string>> = new Map([
   [12270, ['atmega8u2']],
@@ -62,10 +63,8 @@ function eraseChip(device: string): Promise<boolean | Error> {
         str.includes('Chip already blank') ||
         str === ''
       ) {
-        window.Bridge.statusAppend('Erase Succeeded');
         resolve(true);
       } else {
-        window.Bridge.statusAppend('Erase Failed');
         window.Bridge.statusAppend(` ${str}`);
         reject(new Error('Erase Failed'));
       }
@@ -126,44 +125,92 @@ function resetChip(device: string): Promise<boolean | Error> {
   });
 }
 
-/**
- * handler
- * @param {number} productID
- * @param {string} _processor processor submitted from api
- * @module programmers/dfuProgrammer
- */
-async function handler(
-  productID: number,
-  processor: string
-): Promise<boolean | Error> {
-  console.log('processor: ', processor);
-  if (atmelDevices.has(productID)) {
-    const searchList = atmelDevices.get(productID);
-    console.log(searchList);
-    const index = searchList.findIndex(
-      (processorID) => processorID === processor
-    );
-
-    if (index > -1) {
-      window.Bridge.statusAppend(`Found USB Device ${processor}`);
-      try {
-        await eraseChip(processor);
-        console.log(`Erased device ${processor}`);
-        await flashChip(processor);
-        console.log(`Flashed device ${processor}`);
-        await resetChip(processor);
-        console.log(`Rebooting keyboard`);
-      } catch (err) {
-        window.Bridge.statusAppend(`  Error Flashing ${err}`);
-        return err;
-      }
-      window.Bridge.statusAppend('  Successfully Flashed Keymap onto device');
-    } else {
-      window.Bridge.statusAppend('Please connect the Keyboard and press reset');
-    }
-    return true;
+export class DFUProgrammer {
+  constructor(productID: number, processor: string) {
+    this.productID = productID;
+    this.processor = processor;
   }
-  return false;
+
+  isCompatible(): boolean {
+    if (atmelDevices.has(this.productID)) {
+      const searchList = atmelDevices.get(this.productID);
+      console.log(searchList);
+      const index = searchList.findIndex(
+        (processorID) => processorID === this.processor
+      );
+      return index > -1;
+    }
+    return false;
+  }
+
+  methods(): Methods {
+    const processor = this.processor;
+    const isCompatible = this.isCompatible.bind(this);
+    const fw: FlashWriter = {
+      validator(): PromiseLike<boolean | Error> {
+        return new Promise((resolve, reject) => {
+          isCompatible() ? resolve(true) : reject(false);
+        })
+          .then((r) => {
+            window.Bridge.statusAppend(`Found USB Device ${processor}`);
+            return r;
+          })
+          .catch((r) => {
+            window.Bridge.statusAppend(
+              'Please connect the Keyboard and press reset'
+            );
+            return r;
+          }) as PromiseLike<boolean | Error>;
+      },
+      eraser(): PromiseLike<boolean | Error> {
+        window.Bridge.statusAppend(`Erasing ${processor}`);
+        return eraseChip(processor)
+          .then((r) => {
+            window.Bridge.statusAppend(`Erase Succeeded`);
+            return r;
+          })
+          .catch((r) => {
+            window.Bridge.statusAppend('Erase Failed');
+            return r;
+          });
+      },
+      flasher(): PromiseLike<boolean | Error> {
+        window.Bridge.statusAppend(`Flashing ${processor}`);
+        return flashChip(processor)
+          .then((r) => {
+            window.Bridge.statusAppend(`Flashing Succeeded`);
+            return r;
+          })
+          .catch((r) => {
+            window.Bridge.statusAppend('Flashing Failed');
+            return r;
+          });
+      },
+      restarter(): PromiseLike<boolean | Error> {
+        return resetChip(processor).then(() => {
+          window.Bridge.statusAppend(`Restarting Keyboard`);
+        }) as PromiseLike<boolean | Error>;
+      },
+      failer(): PromiseLike<boolean | Error> {
+        return new Promise((resolve, reject) => {
+          window.Bridge.statusAppend(`Flash Failed. ${this.error}`);
+          reject(new Error(this.error));
+        });
+      },
+      succeeder(): PromiseLike<boolean | Error> {
+        return new Promise((resolve) => {
+          window.Bridge.statusAppend('Flash Succeeded. Enjoy your new keymap');
+          resolve(true);
+        });
+      },
+    };
+    return {
+      ...fw,
+    };
+  }
+
+  productID: number;
+  processor: string;
 }
 
 /**
@@ -174,7 +221,9 @@ async function handler(
  */
 export function dfuProgrammerFlash(productID: number, processor: string): void {
   if (processor) {
-    handler(productID, processor);
+    const programmer = new DFUProgrammer(productID, processor);
+    const sm = newStateMachine({methods: programmer.methods()});
+    sm.ready();
   } else {
     prompt({
       title: 'Processor',
@@ -186,13 +235,11 @@ export function dfuProgrammerFlash(productID: number, processor: string): void {
         if (r === null) {
           window.Bridge.statusAppend('No selection made flashing cancelled');
         } else {
-          handler(productID, r);
+          const programmer = new DFUProgrammer(productID, r);
+          const sm = newStateMachine({methods: programmer.methods()});
+          sm.ready();
         }
       })
       .catch(log.error);
   }
-}
-
-export function methods(): Methods {
-  return {};
 }
