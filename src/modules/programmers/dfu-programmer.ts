@@ -7,6 +7,8 @@ import first from 'lodash/first';
 import {FlashWriter, Methods} from '../types';
 import {newStateMachine} from '../state-machine';
 
+const timerTimeout = 10000;
+
 const atmelDevices: Map<number, Array<string>> = new Map([
   [12270, ['atmega8u2']],
   [12271, ['atmega16u2']],
@@ -35,6 +37,18 @@ if (process.platform == 'win32') {
 }
 log.info('DFU programmer is', dfuProgrammer);
 
+export class TimedOutError extends Error {
+  constructor(...params: any) {
+    super(...params);
+    // Maintains proper stack trace for where our error was thrown (only available on V8)
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, TimedOutError);
+    }
+
+    this.name = 'TimedOutError';
+  }
+}
+
 /**
  * Erase data from mcu
  * @return {Promise} reject - erase failed
@@ -49,13 +63,19 @@ function eraseChip(device: string): Promise<boolean | Error> {
       args.push('--force');
     }
 
+    const stderr: string[] = [];
     const regex = /.*Success.*\r?|\rChecking memory from .* Empty.*/;
     const eraser = spawn(command, args);
-    const stderr: string[] = [];
+
+    const id = setTimeout(() => {
+      eraser.kill();
+      reject(new TimedOutError('Erase Timedout'));
+    }, timerTimeout);
 
     eraser.stderr.on('data', stderr.push);
 
     eraser.on('exit', (code /*, signal*/) => {
+      clearTimeout(id);
       const str = stderr.join('');
       if (
         code === 0 ||
@@ -66,7 +86,11 @@ function eraseChip(device: string): Promise<boolean | Error> {
         resolve(true);
       } else {
         window.Bridge.statusAppend(` ${str}`);
-        reject(new Error('Erase Failed'));
+        if (code === null) {
+          reject(new Error('Erase Timedout'));
+        } else {
+          reject(new Error(`Erase Failed ${code}`));
+        }
       }
     });
   });
@@ -86,14 +110,23 @@ function flashChip(device: string): Promise<boolean | Error> {
     // add a linefeed to console output
     window.Bridge.statusAppend('');
 
+    const id = setTimeout(() => {
+      flasher.kill();
+      window.Bridge.statusAppend(`Flasher Killed on Time out`);
+      reject(new TimedOutError('Flash Timedout'));
+    }, timerTimeout);
+
     flasher.stderr.on('data', window.Bridge.statusAppendNoLF);
 
     flasher.on('exit', (code) => {
+      clearTimeout(id);
       if (code === 0) {
         resolve(true);
       } else {
-        window.Bridge.statusAppend('Flashing Failed');
-        reject(new Error('Flash Failed'));
+        if (code !== null) {
+          window.Bridge.statusAppend(`Flashing Failed ${code}`);
+          reject(new Error('Flash Failed'));
+        }
       }
     });
   });
@@ -109,17 +142,26 @@ function resetChip(device: string): Promise<boolean | Error> {
   return new Promise((resolve, reject) => {
     const command: string = dfuProgrammer;
     const args = [device, 'reset'];
-    const resetter = spawn(command, args);
     const stderr: string[] = [];
+
+    const resetter = spawn(command, args);
+    const id = setTimeout(() => {
+      resetter.kill();
+      window.Bridge.statusAppend('Reset timedout');
+      reject(new TimedOutError('Flash Timedout'));
+    }, timerTimeout);
 
     resetter.stderr.on('data', stderr.push);
     resetter.on('exit', (code) => {
+      clearTimeout(id);
       window.Bridge.statusAppend(` ${stderr.join()}`);
       if (code === 0) {
         resolve(true);
       } else {
-        window.Bridge.statusAppend('Reset Failed');
-        reject(new Error('Reset Failed'));
+        if (code !== null) {
+          window.Bridge.statusAppend('Reset Failed');
+          reject(Error('Reset Failed'));
+        }
       }
     });
   });
@@ -177,24 +219,36 @@ export class DFUProgrammer {
       flasher(): PromiseLike<boolean | Error> {
         window.Bridge.statusAppend(`Flashing ${processor}`);
         return flashChip(processor)
-          .then((r) => {
-            window.Bridge.statusAppend(`Flashing Succeeded`);
-            return r;
-          })
+          .then(
+            (r) => {
+              window.Bridge.statusAppend(`Flashing Succeeded`);
+              return r;
+            },
+            (r) => {
+              window.Bridge.statusAppend(`Flashing Errored ${r}`);
+              return r;
+            }
+          )
           .catch((r) => {
-            window.Bridge.statusAppend('Flashing Failed');
+            window.Bridge.statusAppend(`Flashing Failed ${r}`);
             return r;
           });
       },
       restarter(): PromiseLike<boolean | Error> {
-        return resetChip(processor).then(() => {
-          window.Bridge.statusAppend(`Restarting Keyboard`);
-        }) as PromiseLike<boolean | Error>;
+        return resetChip(processor)
+          .then((r) => {
+            window.Bridge.statusAppend(`Restarting Keyboard`);
+            return r;
+          })
+          .catch((r) => {
+            window.Bridge.statusAppend(`Restart Failed ${r}`);
+            return r;
+          }) as PromiseLike<boolean | Error>;
       },
       failer(): PromiseLike<boolean | Error> {
         return new Promise((resolve, reject) => {
           window.Bridge.statusAppend(`Flash Failed. ${this.error}`);
-          reject(new Error(this.error));
+          reject(this.error);
         });
       },
       succeeder(): PromiseLike<boolean | Error> {

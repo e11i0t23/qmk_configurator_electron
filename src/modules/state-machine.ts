@@ -4,8 +4,9 @@ import log from 'electron-log';
 import {StateMachine, Options} from './types';
 import transitions from './transitions';
 import {WAITING} from './transitions';
+import {TimedOutError} from './programmers/dfu-programmer';
 
-const debug = false;
+const debug = true;
 
 const defaultOptions: Options = {
   name: 'flashStateMachine',
@@ -50,27 +51,50 @@ const defaultOptions: Options = {
     },
     onEnterValidating: function(): PromiseLike<boolean | Error> {
       const errored = this.errored.bind(this);
+      const timedOut = this.timedOut.bind(this);
       const validated = this.validated.bind(this);
       return this.validator()
-        .then(() => {
-          setTimeout(validated, 0);
+        .then((r: boolean | Error) => {
+          if (r === true) {
+            setTimeout(validated, 0);
+          } else {
+            this.error = r;
+            if (r instanceof Error && r.name === 'TimedOutError') {
+              setTimeout(timedOut, 0);
+            } else {
+              setTimeout(errored, 0);
+            }
+          }
+          return r;
         })
-        .catch(() => {
+        .catch((r: boolean | Error) => {
           this.error = 'Unsupported bootloader';
           setTimeout(errored, 0);
+          return r;
         }) as PromiseLike<boolean | Error>;
     },
     onEnterErasing: function(): PromiseLike<boolean | Error> {
       debug && console.log('erase runs now');
       const erased = this.erased.bind(this);
+      const timedOut = this.timedOut.bind(this);
       const errored = this.errored.bind(this);
       return this.eraser()
-        .then(() => {
+        .then((r: boolean | Error) => {
           debug && console.log('erased');
-          setTimeout(erased, 0);
+          if (r === true) {
+            setTimeout(erased, 0);
+          } else {
+            this.error = r;
+            if (r instanceof Error && r.name === 'TimedOutError') {
+              setTimeout(timedOut, 0);
+            } else {
+              setTimeout(errored, 0);
+            }
+          }
+          return r;
         })
         .catch((err: string) => {
-          this.error = new Error(err);
+          this.error = err;
           setTimeout(errored, 0);
           console.log('crashed', err);
         });
@@ -79,14 +103,25 @@ const defaultOptions: Options = {
       debug && console.log('flash runs now');
       const errored = this.errored.bind(this);
       const flashed = this.flashed.bind(this);
+      const timedOut = this.timedOut.bind(this);
       return this.flasher()
-        .then(() => {
+        .then((r: boolean | Error) => {
           debug && console.log('flashed');
-          setTimeout(flashed, 0);
+          if (r === true) {
+            setTimeout(flashed, 0);
+          } else {
+            this.error = r;
+            if (r instanceof Error && r.name === 'TimedOutError') {
+              setTimeout(timedOut, 0);
+            } else {
+              setTimeout(errored, 0);
+            }
+          }
+          return r;
         })
         .catch((err: string) => {
+          this.error = err;
           setTimeout(errored, 0);
-          this.error = new Error(err);
           console.log('crashed', err);
         });
     },
@@ -94,14 +129,24 @@ const defaultOptions: Options = {
       debug && console.log('restarting');
       const restarted = this.restarted.bind(this);
       const errored = this.errored.bind(this);
+      const timedOut = this.timedOut.bind(this);
       return this.restarter()
-        .then(() => {
+        .then((r: boolean | Error) => {
           debug && console.log('restarted');
-          setTimeout(restarted, 0);
+          if (r === true) {
+            setTimeout(restarted, 0);
+          } else {
+            this.error = r;
+            if (r instanceof Error && r.name === 'TimedOutError') {
+              setTimeout(timedOut, 0);
+            } else {
+              setTimeout(errored, 0);
+            }
+          }
         })
         .catch((err: string) => {
+          this.error = err;
           setTimeout(errored, 0);
-          this.error = new Error(err);
           console.log('crashed', err);
         });
     },
