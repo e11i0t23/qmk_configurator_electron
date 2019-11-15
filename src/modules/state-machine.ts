@@ -5,7 +5,7 @@ import {StateMachine, Options} from './types';
 import transitions from './transitions';
 import {WAITING} from './transitions';
 
-const debug = false;
+const debug = true;
 
 const defaultOptions: Options = {
   name: 'flashStateMachine',
@@ -34,6 +34,13 @@ const defaultOptions: Options = {
       return new Promise((resolve) => {
         resolve(true);
       });
+    },
+    // Override this with restarter function
+    failer: function(result: any): void {
+      console.log(result);
+    },
+    succeeder: function(result: any): void {
+      console.log(result);
     },
     onEnterErasing: function(): PromiseLike<boolean | Error> {
       debug && console.log('erase runs now');
@@ -78,10 +85,12 @@ const defaultOptions: Options = {
         });
     },
     onEnterFailed: function(): void {
-      console.log('failed', this.error);
+      this.failer(this.error);
+      debug && console.log('failed', this.error);
     },
     onEnterSuccess: function(): void {
-      console.log('>>>>> we did it reddit <<<<<');
+      this.succeeder('success');
+      debug && console.log('>>>>> we did it reddit <<<<<');
     },
     onTransition: function(lifecycle, arg1, arg2): boolean {
       if (debug) {
