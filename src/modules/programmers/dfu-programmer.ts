@@ -49,6 +49,17 @@ export class TimedOutError extends Error {
   }
 }
 
+function timeoutBuilder(
+  reject: (value?: boolean | Error | PromiseLike<boolean | Error>) => void,
+  spawner: childProcess.ChildProcess,
+  errMsg: string
+): number {
+  return window.setTimeout(function timeoutError() {
+    spawner.kill();
+    reject(new TimedOutError(errMsg));
+  }, timerTimeout);
+}
+
 /**
  * Erase data from mcu
  * @return {Promise} reject - erase failed
@@ -56,7 +67,7 @@ export class TimedOutError extends Error {
  * @module programmers/dfuProgrammer
  */
 function eraseChip(device: string): Promise<boolean | Error> {
-  return new Promise((resolve, reject) => {
+  return new Promise(function eraseChipResolver(resolve, reject) {
     let command = dfuProgrammer;
     let args = [device, 'erase'];
     if (process.platform === 'win32') {
@@ -67,21 +78,18 @@ function eraseChip(device: string): Promise<boolean | Error> {
     const regex = /.*Success.*\r?|\rChecking memory from .* Empty.*/;
     const eraser = spawn(command, args);
 
-    const id = setTimeout(() => {
-      eraser.kill();
-      reject(new TimedOutError('Erase Timedout'));
-    }, timerTimeout);
+    const cancelID = timeoutBuilder(reject, eraser, 'Erase Timedout');
 
     eraser.stderr.on('data', stderr.push);
 
     eraser.on('exit', (code /*, signal*/) => {
-      clearTimeout(id);
+      clearTimeout(cancelID);
       const str = stderr.join('');
       if (
         code === 0 ||
-        regex.test(str) ||
+        str === '' ||
         str.includes('Chip already blank') ||
-        str === ''
+        regex.test(str)
       ) {
         resolve(true);
       } else {
@@ -110,16 +118,12 @@ function flashChip(device: string): Promise<boolean | Error> {
     // add a linefeed to console output
     window.Bridge.statusAppend('');
 
-    const id = setTimeout(() => {
-      flasher.kill();
-      window.Bridge.statusAppend(`Flasher Killed on Time out`);
-      reject(new TimedOutError('Flash Timedout'));
-    }, timerTimeout);
+    const cancelID = timeoutBuilder(reject, flasher, 'Flash Timedout');
 
     flasher.stderr.on('data', window.Bridge.statusAppendNoLF);
 
     flasher.on('exit', (code) => {
-      clearTimeout(id);
+      clearTimeout(cancelID);
       if (code === 0) {
         resolve(true);
       } else {
@@ -145,15 +149,12 @@ function resetChip(device: string): Promise<boolean | Error> {
     const stderr: string[] = [];
 
     const resetter = spawn(command, args);
-    const id = setTimeout(() => {
-      resetter.kill();
-      window.Bridge.statusAppend('Reset timedout');
-      reject(new TimedOutError('Flash Timedout'));
-    }, timerTimeout);
+
+    const cancelID = timeoutBuilder(reject, resetter, 'Reset Timedout');
 
     resetter.stderr.on('data', stderr.push);
     resetter.on('exit', (code) => {
-      clearTimeout(id);
+      clearTimeout(cancelID);
       window.Bridge.statusAppend(` ${stderr.join()}`);
       if (code === 0) {
         resolve(true);
