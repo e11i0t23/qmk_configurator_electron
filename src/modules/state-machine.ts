@@ -59,7 +59,7 @@ const defaultOptions: Options = {
       const validated = this.validated.bind(this);
       return this.validator()
         .then((r: boolean | Error) => {
-          if (r === true) {
+          if (r) {
             setTimeout(validated, 0);
           } else {
             this.error = r;
@@ -85,7 +85,7 @@ const defaultOptions: Options = {
       return this.eraser()
         .then((r: boolean | Error) => {
           debug && console.log('erased');
-          if (r === true) {
+          if (r) {
             setTimeout(erased, 0);
           } else {
             this.error = r;
@@ -111,7 +111,7 @@ const defaultOptions: Options = {
       return this.flasher()
         .then((r: boolean | Error) => {
           debug && console.log('flashed');
-          if (r === true) {
+          if (r) {
             setTimeout(flashed, 0);
           } else {
             this.error = r;
@@ -137,7 +137,7 @@ const defaultOptions: Options = {
       return this.restarter()
         .then((r: boolean | Error) => {
           debug && console.log('restarted');
-          if (r === true) {
+          if (r) {
             setTimeout(restarted, 0);
           } else {
             this.error = r;
