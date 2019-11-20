@@ -17,12 +17,13 @@ export class TimedOutError extends Error {
 export function timeoutBuilder(
   reject: (value?: boolean | Error | PromiseLike<boolean | Error>) => void,
   spawner: childProcess.ChildProcess,
-  errMsg: string
+  errMsg: string,
+  duration: number = timerTimeout
 ): number {
   return window.setTimeout(function timeoutError() {
     spawner.kill();
     reject(new TimedOutError(errMsg));
-  }, timerTimeout);
+  }, duration);
 }
 
 export function responseAdapter(

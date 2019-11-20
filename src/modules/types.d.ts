@@ -82,10 +82,10 @@ export interface IFSM {
 }
 
 export interface FlashWriter {
-  validator(): PromiseLike<boolean | Error>;
-  eraser(): PromiseLike<boolean | Error>;
+  validator?(): PromiseLike<boolean | Error>;
+  eraser?(): PromiseLike<boolean | Error>;
   flasher(): PromiseLike<boolean | Error>;
-  restarter(): PromiseLike<boolean | Error>;
-  failer(): PromiseLike<boolean | Error>;
-  succeeder(): PromiseLike<boolean | Error>;
+  restarter?(): PromiseLike<boolean | Error>;
+  failer?(): PromiseLike<boolean | Error>;
+  succeeder?(): PromiseLike<boolean | Error>;
 }

@@ -41,12 +41,17 @@ const defaultOptions: Options = {
         resolve(true);
       });
     },
-    // Override this with restarter function
-    failer: function(result: any): void {
-      console.log(result);
+    failer(): PromiseLike<boolean | Error> {
+      return new Promise((resolve, reject) => {
+        window.Bridge.statusAppend(`Flash Failed. ${this.error}`);
+        reject(this.error);
+      });
     },
-    succeeder: function(result: any): void {
-      console.log(result);
+    succeeder(): PromiseLike<boolean | Error> {
+      return new Promise((resolve) => {
+        window.Bridge.statusAppend('Flash Succeeded. Enjoy your new keymap');
+        resolve(true);
+      });
     },
     onEnterValidating: function(): PromiseLike<boolean | Error> {
       const errored = this.errored.bind(this);

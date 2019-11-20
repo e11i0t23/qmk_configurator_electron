@@ -199,18 +199,6 @@ export class DFUProgrammer {
           (r: PromiseLike<Error>) => `Restart Failed ${r}`
         );
       },
-      failer(): PromiseLike<boolean | Error> {
-        return new Promise((resolve, reject) => {
-          window.Bridge.statusAppend(`Flash Failed. ${this.error}`);
-          reject(this.error);
-        });
-      },
-      succeeder(): PromiseLike<boolean | Error> {
-        return new Promise((resolve) => {
-          window.Bridge.statusAppend('Flash Succeeded. Enjoy your new keymap');
-          resolve(true);
-        });
-      },
     };
     return {
       ...fw,

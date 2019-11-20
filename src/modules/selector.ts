@@ -1,5 +1,5 @@
 import {dfuProgrammerFlash} from './programmers/dfu-programmer';
-import {stm32, kiibohd} from './programmers/dfu-util';
+import {Family, dfuUtilFlash} from './programmers/dfu-util';
 import isUndefined from 'lodash/isUndefined';
 import {caterina, avrisp, USBtiny, USBasp} from './programmers/avrdude';
 import {tlc} from './programmers/teensy_loader_cli';
@@ -89,9 +89,9 @@ function selector(processor?: string): void {
             flashing = true;
             window.Bridge.statusAppend('Using dfu-util to flash dfu');
             if (vendorID === 0x0483) {
-              stm32();
+              dfuUtilFlash(window.inputPath, Family.stm32);
             } else if (vendorID === 0x1c11) {
-              kiibohd();
+              dfuUtilFlash(window.inputPath, Family.kiibohd);
             }
           }
           break;
