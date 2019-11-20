@@ -7,7 +7,7 @@ import first from 'lodash/first';
 import {FlashWriter, Methods} from '../types';
 import {newStateMachine} from '../state-machine';
 
-const timerTimeout = 10000;
+import {timeoutBuilder, responseAdapter} from './utils';
 
 const atmelDevices: Map<number, Array<string>> = new Map([
   [12270, ['atmega8u2']],
@@ -37,29 +37,6 @@ if (process.platform == 'win32') {
 }
 log.info('DFU programmer is', dfuProgrammer);
 
-export class TimedOutError extends Error {
-  constructor(...params: any) {
-    super(...params);
-    // Maintains proper stack trace for where our error was thrown (only available on V8)
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, TimedOutError);
-    }
-
-    this.name = 'TimedOutError';
-  }
-}
-
-function timeoutBuilder(
-  reject: (value?: boolean | Error | PromiseLike<boolean | Error>) => void,
-  spawner: childProcess.ChildProcess,
-  errMsg: string
-): number {
-  return window.setTimeout(function timeoutError() {
-    spawner.kill();
-    reject(new TimedOutError(errMsg));
-  }, timerTimeout);
-}
-
 /**
  * Erase data from mcu
  * @return {Promise} reject - erase failed
@@ -82,7 +59,7 @@ function eraseChip(device: string): Promise<boolean | Error> {
 
     eraser.stderr.on('data', stderr.push);
 
-    eraser.on('exit', (code /*, signal*/) => {
+    eraser.on('exit', (code: unknown /*, signal*/) => {
       clearTimeout(cancelID);
       const str = stderr.join('');
       if (
@@ -122,7 +99,7 @@ function flashChip(device: string): Promise<boolean | Error> {
 
     flasher.stderr.on('data', window.Bridge.statusAppendNoLF);
 
-    flasher.on('exit', (code) => {
+    flasher.on('exit', (code: unknown) => {
       clearTimeout(cancelID);
       if (code === 0) {
         resolve(true);
@@ -153,7 +130,7 @@ function resetChip(device: string): Promise<boolean | Error> {
     const cancelID = timeoutBuilder(reject, resetter, 'Reset Timedout');
 
     resetter.stderr.on('data', stderr.push);
-    resetter.on('exit', (code) => {
+    resetter.on('exit', (code: unknown) => {
       clearTimeout(cancelID);
       window.Bridge.statusAppend(` ${stderr.join()}`);
       if (code === 0) {
@@ -191,60 +168,36 @@ export class DFUProgrammer {
     const isCompatible = this.isCompatible.bind(this);
     const fw: FlashWriter = {
       validator(): PromiseLike<boolean | Error> {
-        return new Promise((resolve, reject) => {
-          isCompatible() ? resolve(true) : reject(false);
-        })
-          .then((r) => {
-            window.Bridge.statusAppend(`Found USB Device ${processor}`);
-            return r;
-          })
-          .catch((r) => {
-            window.Bridge.statusAppend(
-              'Please connect the Keyboard and press reset'
-            );
-            return r;
-          }) as PromiseLike<boolean | Error>;
+        return responseAdapter(
+          new Promise((resolve, reject) => {
+            isCompatible() ? resolve(true) : reject(false);
+          }),
+          `Found USB Device ${processor}`,
+          'Please connect the Keyboard and press reset'
+        );
       },
       eraser(): PromiseLike<boolean | Error> {
         window.Bridge.statusAppend(`Erasing ${processor}`);
-        return eraseChip(processor)
-          .then((r) => {
-            window.Bridge.statusAppend(`Erase Succeeded`);
-            return r;
-          })
-          .catch((r) => {
-            window.Bridge.statusAppend('Erase Failed');
-            return r;
-          });
+        return responseAdapter(
+          eraseChip(processor),
+          'Erase Succeeded',
+          'Erase Failed'
+        );
       },
       flasher(): PromiseLike<boolean | Error> {
         window.Bridge.statusAppend(`Flashing ${processor}`);
-        return flashChip(processor)
-          .then(
-            (r) => {
-              window.Bridge.statusAppend(`Flashing Succeeded`);
-              return r;
-            },
-            (r) => {
-              window.Bridge.statusAppend(`Flashing Errored ${r}`);
-              return r;
-            }
-          )
-          .catch((r) => {
-            window.Bridge.statusAppend(`Flashing Failed ${r}`);
-            return r;
-          });
+        return responseAdapter(
+          flashChip(processor),
+          `Flashing Succeeded`,
+          (r: PromiseLike<Error>) => `Flashing Failed ${r}`
+        );
       },
       restarter(): PromiseLike<boolean | Error> {
-        return resetChip(processor)
-          .then((r) => {
-            window.Bridge.statusAppend(`Restarting Keyboard`);
-            return r;
-          })
-          .catch((r) => {
-            window.Bridge.statusAppend(`Restart Failed ${r}`);
-            return r;
-          }) as PromiseLike<boolean | Error>;
+        return responseAdapter(
+          resetChip(processor),
+          `Restarting Keyboard`,
+          (r: PromiseLike<Error>) => `Restart Failed ${r}`
+        );
       },
       failer(): PromiseLike<boolean | Error> {
         return new Promise((resolve, reject) => {

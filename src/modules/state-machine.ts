@@ -4,7 +4,6 @@ import log from 'electron-log';
 import {StateMachine, Options} from './types';
 import transitions from './transitions';
 import {WAITING} from './transitions';
-import {TimedOutError} from './programmers/dfu-programmer';
 
 const debug = true;
 
