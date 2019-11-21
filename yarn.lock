@@ -56,13 +56,6 @@
     global-agent "^2.0.2"
     global-tunnel-ng "^2.7.1"
 
-"@serialport/binding-abstract@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@serialport/binding-abstract/-/binding-abstract-3.0.0.tgz#e8701987bb18277db4f9ba96d1870ca9a3c24056"
-  integrity sha512-dtaEUxvFexO+yofbJQhMmg+4MTflLyuC1FjrUuxRh494+JFGzNJkqEiFk/Zpmkie0gysNAbygWviWWzH154SPw==
-  dependencies:
-    debug "^4.1.1"
-
 "@serialport/binding-abstract@^8.0.4":
   version "8.0.4"
   resolved "https://registry.yarnpkg.com/@serialport/binding-abstract/-/binding-abstract-8.0.4.tgz#368f9d0207aef759fb482539c1056c07b2ab1904"
@@ -77,18 +70,6 @@
   dependencies:
     "@serialport/binding-abstract" "^8.0.4"
     debug "^4.1.1"
-
-"@serialport/bindings@3":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@serialport/bindings/-/bindings-3.0.0.tgz#001a322f26bc317615e87b9cc9574f190bf8375b"
-  integrity sha512-I/241rgOSGwvviQ8yLtDBO2DsxXdMdbwj130vM9VSETcLunh6r3F1Q3WZ+1DmwuJegITSomBg/Fenw7gRMNQGw==
-  dependencies:
-    "@serialport/binding-abstract" "^3.0.0"
-    "@serialport/parser-readline" "^3.0.0"
-    bindings "^1.5.0"
-    debug "^4.1.1"
-    nan "^2.13.2"
-    prebuild-install "^5.3.0"
 
 "@serialport/bindings@^8.0.4":
   version "8.0.4"
@@ -133,11 +114,6 @@
   dependencies:
     safe-buffer "^5.1.1"
 
-"@serialport/parser-delimiter@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@serialport/parser-delimiter/-/parser-delimiter-3.0.0.tgz#0c8238ab30650448edb7af4d2fa226c393c78e9e"
-  integrity sha512-8KK0nlMlgrihkQ27HvJHjwU3c7yFEHW8vnuyZRdKJTTAtE6JtVp+GwUxC20dOtHxeiyXaJWSpGjcEnFVUP2USA==
-
 "@serialport/parser-delimiter@^8.0.4":
   version "8.0.4"
   resolved "https://registry.yarnpkg.com/@serialport/parser-delimiter/-/parser-delimiter-8.0.4.tgz#1bfc820f2e2c4a9b86461996cd2064df656abb5a"
@@ -150,13 +126,6 @@
   dependencies:
     "@serialport/parser-delimiter" "^1.0.5"
     safe-buffer "^5.1.1"
-
-"@serialport/parser-readline@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@serialport/parser-readline/-/parser-readline-3.0.0.tgz#f0a0f1bed114a3269ea9acd265fb2e2ba0d772f4"
-  integrity sha512-V+8R8y5C3A2UB+bYPAWWgeCCB2iM0ZncghS5FpN+QAKDW6CAXLa69LMPIp5+Ol0ApVux7M/kJ0R6YT0eLvozUw==
-  dependencies:
-    "@serialport/parser-delimiter" "^3.0.0"
 
 "@serialport/parser-readline@^8.0.4":
   version "8.0.4"
@@ -235,13 +204,6 @@
   version "4.14.149"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.149.tgz#1342d63d948c6062838fbf961012f74d4e638440"
   integrity sha512-ijGqzZt/b7BfzcK9vTrS6MFljQRPn5BFWOx8oE0GYxribu6uV+aA9zZuXI1zc/etK9E8nrgdoF2+LgUw7+9tJQ==
-
-"@types/node-hid@^0.7.3":
-  version "0.7.3"
-  resolved "https://registry.yarnpkg.com/@types/node-hid/-/node-hid-0.7.3.tgz#993762b795473dc2ad8ee041f870838735087532"
-  integrity sha512-ip+Un3Ps0Qok3W3fMgYxaYxVYcbjDYM7yXNm8Uf1sggvSeXL/Q+vZG0AdSDWDQO9apQSE7Yieb4SjfymF1OqPA==
-  dependencies:
-    "@types/node" "*"
 
 "@types/node@*", "@types/node@^12.0.12", "@types/node@^12.12.7":
   version "12.12.11"
@@ -895,9 +857,9 @@ brace-expansion@^1.1.7:
     balanced-match "^1.0.0"
     concat-map "0.0.1"
 
-"browser-serialport@git+https://github.com/noopkat/browser-serialport.git#c8628c41c11890d3058875994c15f83f2df8185b":
+"browser-serialport@https://github.com/noopkat/browser-serialport#c8628c41c11890d3058875994c15f83f2df8185b":
   version "2.0.3"
-  resolved "git+https://github.com/noopkat/browser-serialport.git#c8628c41c11890d3058875994c15f83f2df8185b"
+  resolved "https://github.com/noopkat/browser-serialport#c8628c41c11890d3058875994c15f83f2df8185b"
 
 buffer-alloc-unsafe@^1.1.0:
   version "1.1.0"
@@ -3622,17 +3584,17 @@ rimraf@2.6.3, rimraf@~2.6.2:
   dependencies:
     glob "^7.1.3"
 
-rimraf@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-3.0.0.tgz#614176d4b3010b75e5c390eb0ee96f6dc0cebb9b"
-  integrity sha512-NDGVxTsjqfunkds7CqsOiEnxln4Bo7Nddl3XhS4pXg5OzwkLqJ971ZVAAnB+DDLnF76N+VnDEiBHaVV8I06SUg==
-  dependencies:
-    glob "^7.1.3"
-
 rimraf@^2.6.3:
   version "2.7.1"
   resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.7.1.tgz#35797f13a7fdadc566142c29d4f07ccad483e3ec"
   integrity sha512-uWjbaKIK3T1OSVptzX7Nl6PvQ3qAGtKEtVRjRuazjfL3Bx5eI409VZSqgND+4UNnmzLVdPj9FqFJNPqBZFve4w==
+  dependencies:
+    glob "^7.1.3"
+
+rimraf@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-3.0.0.tgz#614176d4b3010b75e5c390eb0ee96f6dc0cebb9b"
+  integrity sha512-NDGVxTsjqfunkds7CqsOiEnxln4Bo7Nddl3XhS4pXg5OzwkLqJ971ZVAAnB+DDLnF76N+VnDEiBHaVV8I06SUg==
   dependencies:
     glob "^7.1.3"
 
