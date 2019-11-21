@@ -2,16 +2,15 @@ import {app, BrowserWindow} from 'electron';
 import log from 'electron-log';
 import {autoUpdater} from 'electron-updater';
 import * as path from 'path';
-import {newStateMachine} from './modules/state-machine';
-import visualize from 'javascript-state-machine/lib/visualize';
 
-const fsm = newStateMachine();
-console.log(visualize(fsm));
+import usbDetect from 'usb-detection';
+usbDetect.startMonitoring();
 
-fsm.ready();
+usbDetect.on('add', function(device) {
+  console.log(device);
+});
 
 let win: Electron.BrowserWindow; // Global ref og window object
-// const HIDListen = require('hid-listen');
 
 /**
  * Initialize our app window
@@ -98,6 +97,7 @@ autoUpdater.on('update-downloaded', (info) => {
 });
 
 // app.on('browser-window-created', (event, win) => {});
+app.on('will-quit', () => {});
 
 app.on('ready', () => {
   autoUpdater.checkForUpdatesAndNotify();

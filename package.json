@@ -103,7 +103,6 @@
     "electron-updater": "^4.1.2",
     "follow-redirects": "^1.7.0",
     "global": "^4.4.0",
-    "hid-listen": "github:zvecr/hid-listen",
     "install": "^0.13.0",
     "javascript-state-machine": "^3.1.0",
     "lodash": "^4.17.15",
