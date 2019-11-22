@@ -37,70 +37,6 @@ if (process.platform == 'win32') {
 }
 log.info('DFU programmer is', dfuProgrammer);
 
-/**
- * Flash hex to mcu
- * @return {Promise} flash failed resolve or successfully flashed mcu
- * @module programmers/dfuProgrammer
- */
-function flashChip(device: string): Promise<boolean | Error> {
-  return new Promise((resolve, reject) => {
-    const command = dfuProgrammer;
-    const args = [device, 'flash', window.inputPath];
-    const flasher = spawn(command, args);
-
-    // add a linefeed to console output
-    window.Bridge.statusAppend('');
-
-    const cancelID = timeoutBuilder(reject, flasher, 'Flash Timedout');
-
-    flasher.stderr.on('data', window.Bridge.statusAppendNoLF);
-
-    flasher.on('exit', (code: unknown) => {
-      clearTimeout(cancelID);
-      if (code === 0) {
-        resolve(true);
-      } else {
-        if (code !== null) {
-          window.Bridge.statusAppend(`Flashing Failed ${code}`);
-          reject(new Error(`Flash Failed ${code}`));
-        }
-      }
-    });
-  });
-}
-
-/**
- * reset chip
- * @return {Promise} reject - reset failed
- * @return {Promise} resolve - successfully reset mcu
- * @see  programmers/dfuProgrammer
- */
-function resetChip(device: string): Promise<boolean | Error> {
-  return new Promise((resolve, reject) => {
-    const command: string = dfuProgrammer;
-    const args = [device, 'reset'];
-    const stderr: string[] = [];
-
-    const resetter = spawn(command, args);
-
-    const cancelID = timeoutBuilder(reject, resetter, 'Reset Timedout');
-
-    resetter.stderr.on('data', stderr.push);
-    resetter.on('exit', (code: unknown) => {
-      clearTimeout(cancelID);
-      window.Bridge.statusAppend(` ${stderr.join()}`);
-      if (code === 0) {
-        resolve(true);
-      } else {
-        if (code !== null) {
-          window.Bridge.statusAppend('Reset Failed');
-          reject(Error('Reset Failed'));
-        }
-      }
-    });
-  });
-}
-
 export class DFUProgrammer {
   constructor(productID: number, processor: string) {
     this.productID = productID;
@@ -152,6 +88,67 @@ export class DFUProgrammer {
     });
   }
 
+  /**
+   * Flash hex to mcu
+   * @return {Promise} flash failed resolve or successfully flashed mcu
+   * @module programmers/dfuProgrammer
+   */
+  flashChip(device: string): Promise<boolean | Error> {
+    return new Promise((resolve, reject) => {
+      const command = dfuProgrammer;
+      const args = [device, 'flash', window.inputPath];
+      const flasher = spawn(command, args);
+
+      // add a linefeed to console output
+      window.Bridge.statusAppend('');
+
+      const cancelID = timeoutBuilder(reject, flasher, 'Flash Timedout');
+
+      flasher.stderr.on('data', window.Bridge.statusAppendNoLF);
+
+      flasher.on('exit', (code: unknown) => {
+        clearTimeout(cancelID);
+        if (code === 0) {
+          resolve(true);
+        } else {
+          if (code !== null) {
+            window.Bridge.statusAppend(`Flashing Failed ${code}`);
+            reject(new Error(`Flash Failed ${code}`));
+          }
+        }
+      });
+    });
+  }
+
+  /**
+   * reset chip
+   * @return {Promise} reject - reset failed
+   * @return {Promise} resolve - successfully reset mcu
+   * @see  programmers/dfuProgrammer
+   */
+  resetChip(device: string): Promise<boolean | Error> {
+    return new Promise((resolve, reject) => {
+      const command: string = dfuProgrammer;
+      const args = [device, 'reset'];
+
+      const resetter = spawn(command, args);
+
+      const cancelID = timeoutBuilder(reject, resetter, 'Reset Timedout');
+
+      resetter.on('exit', (code: unknown) => {
+        clearTimeout(cancelID);
+        if (code === 0) {
+          resolve(true);
+        } else {
+          if (code !== null) {
+            window.Bridge.statusAppend('Reset Failed');
+            reject(Error('Reset Failed'));
+          }
+        }
+      });
+    });
+  }
+
   isCompatible(): boolean {
     if (atmelDevices.has(this.productID)) {
       const searchList = atmelDevices.get(this.productID);
@@ -168,6 +165,8 @@ export class DFUProgrammer {
     const processor = this.processor;
     const isCompatible = this.isCompatible.bind(this);
     const eraseChip = this.eraseChip.bind(this);
+    const flashChip = this.flashChip.bind(this);
+    const resetChip = this.resetChip.bind(this);
     const fw: FlashWriter = {
       validator(): PromiseLike<boolean | Error> {
         return responseAdapter(
