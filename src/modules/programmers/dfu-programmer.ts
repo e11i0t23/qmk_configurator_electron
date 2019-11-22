@@ -38,10 +38,19 @@ if (process.platform == 'win32') {
 log.info('DFU programmer is', dfuProgrammer);
 
 export class DFUProgrammer {
-  constructor(productID: number, processor: string) {
+  constructor(
+    productID: number,
+    processor: string,
+    loggerNoLF: (msg: string) => void
+  ) {
     this.productID = productID;
     this.processor = processor;
+    this.loggerNoLF = loggerNoLF;
   }
+
+  productID: number;
+  processor: string;
+  loggerNoLF: (msg: string) => void;
 
   /**
    * Erase data from mcu
@@ -51,6 +60,7 @@ export class DFUProgrammer {
    */
   eraseChip(device: string): Promise<boolean | Error> {
     const ERASED_NOT_BLANK = 5;
+    const loggerNoLF = this.loggerNoLF;
     return new Promise(function eraseChipResolver(resolve, reject) {
       let command = dfuProgrammer;
       let args = [device, 'erase'];
@@ -77,7 +87,7 @@ export class DFUProgrammer {
         ) {
           resolve(true);
         } else {
-          window.Bridge.statusAppend(` ${str}`);
+          loggerNoLF(` ${str}`);
           if (code === null) {
             reject(new Error('Erase Timedout'));
           } else {
@@ -94,17 +104,18 @@ export class DFUProgrammer {
    * @module programmers/dfuProgrammer
    */
   flashChip(device: string): Promise<boolean | Error> {
+    const loggerNoLF = this.loggerNoLF;
     return new Promise((resolve, reject) => {
       const command = dfuProgrammer;
       const args = [device, 'flash', window.inputPath];
       const flasher = spawn(command, args);
 
       // add a linefeed to console output
-      window.Bridge.statusAppend('');
+      loggerNoLF('\n');
 
       const cancelID = timeoutBuilder(reject, flasher, 'Flash Timedout');
 
-      flasher.stderr.on('data', window.Bridge.statusAppendNoLF);
+      flasher.stderr.on('data', loggerNoLF);
 
       flasher.on('exit', (code: unknown) => {
         clearTimeout(cancelID);
@@ -112,7 +123,7 @@ export class DFUProgrammer {
           resolve(true);
         } else {
           if (code !== null) {
-            window.Bridge.statusAppend(`Flashing Failed ${code}`);
+            loggerNoLF(`Flashing Failed ${code}`);
             reject(new Error(`Flash Failed ${code}`));
           }
         }
@@ -127,6 +138,7 @@ export class DFUProgrammer {
    * @see  programmers/dfuProgrammer
    */
   resetChip(device: string): Promise<boolean | Error> {
+    const loggerNoLF = this.loggerNoLF;
     return new Promise((resolve, reject) => {
       const command: string = dfuProgrammer;
       const args = [device, 'reset'];
@@ -141,7 +153,7 @@ export class DFUProgrammer {
           resolve(true);
         } else {
           if (code !== null) {
-            window.Bridge.statusAppend('Reset Failed');
+            loggerNoLF('Reset Failed');
             reject(Error('Reset Failed'));
           }
         }
@@ -205,9 +217,6 @@ export class DFUProgrammer {
       ...fw,
     };
   }
-
-  productID: number;
-  processor: string;
 }
 
 /**
@@ -218,7 +227,11 @@ export class DFUProgrammer {
  */
 export function dfuProgrammerFlash(productID: number, processor: string): void {
   if (processor) {
-    const programmer = new DFUProgrammer(productID, processor);
+    const programmer = new DFUProgrammer(
+      productID,
+      processor,
+      window.Bridge.statusAppendNoLF
+    );
     const sm = newStateMachine({methods: programmer.methods()});
     sm.ready();
   } else {
@@ -232,7 +245,11 @@ export function dfuProgrammerFlash(productID: number, processor: string): void {
         if (r === null) {
           window.Bridge.statusAppend('No selection made flashing cancelled');
         } else {
-          const programmer = new DFUProgrammer(productID, r);
+          const programmer = new DFUProgrammer(
+            productID,
+            r,
+            window.Bridge.statusAppendNoLF
+          );
           const sm = newStateMachine({methods: programmer.methods()});
           sm.ready();
         }
