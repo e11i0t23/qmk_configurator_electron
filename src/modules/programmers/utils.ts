@@ -27,19 +27,18 @@ export function timeoutBuilder(
 }
 
 export function responseAdapter(
+  loggerFn: (msg: string) => void,
   fn: Promise<unknown>,
   successMsg: string,
   failMsg: unknown
 ): Promise<any> {
   return fn
     .then((r) => {
-      window.Bridge.statusAppend(successMsg);
+      loggerFn(`${successMsg}\n`);
       return r;
     })
     .catch((r) => {
-      window.Bridge.statusAppend(
-        typeof failMsg === 'function' ? failMsg(r) : failMsg
-      );
+      loggerFn(`${typeof failMsg === 'function' ? failMsg(r) : failMsg}\n`);
       return r;
     }) as Promise<unknown>;
 }

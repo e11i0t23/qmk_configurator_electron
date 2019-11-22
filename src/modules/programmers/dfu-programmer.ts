@@ -179,9 +179,15 @@ export class DFUProgrammer {
     const eraseChip = this.eraseChip.bind(this);
     const flashChip = this.flashChip.bind(this);
     const resetChip = this.resetChip.bind(this);
+    const loggerNoLF = this.loggerNoLF;
+    const ra: (
+      fn: Promise<unknown>,
+      successMsg: string,
+      failMsg: unknown
+    ) => Promise<boolean | Error> = responseAdapter.bind(undefined, loggerNoLF);
     const fw: FlashWriter = {
       validator(): PromiseLike<boolean | Error> {
-        return responseAdapter(
+        return ra(
           new Promise((resolve, reject) => {
             isCompatible() ? resolve(true) : reject(false);
           }),
@@ -190,23 +196,19 @@ export class DFUProgrammer {
         );
       },
       eraser(): PromiseLike<boolean | Error> {
-        window.Bridge.statusAppend(`Erasing ${processor}`);
-        return responseAdapter(
-          eraseChip(processor),
-          'Erase Succeeded',
-          'Erase Failed'
-        );
+        loggerNoLF(`Erasing ${processor}\n`);
+        return ra(eraseChip(processor), 'Erase Succeeded', 'Erase Failed');
       },
       flasher(): PromiseLike<boolean | Error> {
-        window.Bridge.statusAppend(`Flashing ${processor}`);
-        return responseAdapter(
+        loggerNoLF(`Flashing ${processor}\n`);
+        return ra(
           flashChip(processor),
           `Flashing Succeeded`,
           (r: PromiseLike<Error>) => `Flashing Failed ${r}`
         );
       },
       restarter(): PromiseLike<boolean | Error> {
-        return responseAdapter(
+        return ra(
           resetChip(processor),
           `Restarting Keyboard`,
           (r: PromiseLike<Error>) => `Restart Failed ${r}`

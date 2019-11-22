@@ -82,9 +82,17 @@ export class DFUUtil {
 
   methods(): Methods {
     const filename = this.filename;
+    const ra: (
+      fn: Promise<unknown>,
+      successMsg: string,
+      failMsg: unknown
+    ) => Promise<boolean | Error> = responseAdapter.bind(
+      undefined,
+      window.Bridge.statusAppendNoLF
+    );
     const fw: FlashWriter = {
       validator(): PromiseLike<boolean | Error> {
-        return responseAdapter(
+        return ra(
           new Promise((resolve, reject) => {
             filename.endsWith('bin') ? resolve(true) : reject(false);
           }),
@@ -105,7 +113,7 @@ export class DFUUtil {
           default:
             flashFn = stm32;
         }
-        return responseAdapter(
+        return ra(
           flashFn(filename),
           `Flashing Succeeded`,
           (r: PromiseLike<Error>) => `Flashing Failed ${r}`
