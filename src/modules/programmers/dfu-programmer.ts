@@ -26,16 +26,16 @@ const atmelDevices: Map<number, Array<string>> = new Map([
   [12287, ['at89c5132', 'at89c5snd1c']],
 ]);
 
-let dfuProgrammer: string;
+const dfuProgrammerBinary = ((): string => {
+  if (process.platform == 'win32') {
+    return path.resolve('programmers', './dfu-programmer.exe');
+  } else if (process.platform == 'darwin') {
+    return path.resolve('programmers', './dfu-programmer');
+  }
+  return 'dfu-programmer';
+})();
 
-if (process.platform == 'win32') {
-  dfuProgrammer = path.resolve('programmers', './dfu-programmer.exe');
-} else if (process.platform == 'darwin') {
-  dfuProgrammer = path.resolve('programmers', './dfu-programmer');
-} else {
-  dfuProgrammer = 'dfu-programmer';
-}
-log.info('DFU programmer is', dfuProgrammer);
+log.info('DFU programmer is', dfuProgrammerBinary);
 
 export class DFUProgrammer {
   constructor(
@@ -64,7 +64,7 @@ export class DFUProgrammer {
   ): Promise<boolean | Error> {
     const ERASED_NOT_BLANK = 5;
     return new Promise(function eraseChipResolver(resolve, reject) {
-      let command = dfuProgrammer;
+      let command = dfuProgrammerBinary;
       let args = [device, 'erase'];
       if (process.platform === 'win32') {
         args.push('--force');
@@ -110,9 +110,8 @@ export class DFUProgrammer {
     device: string
   ): Promise<boolean | Error> {
     return new Promise((resolve, reject) => {
-      const command = dfuProgrammer;
       const args = [device, 'flash', window.inputPath];
-      const flasher = spawn(command, args);
+      const flasher = spawn(dfuProgrammerBinary, args);
 
       // add a linefeed to console output
       loggerNoLF('\n');
@@ -146,10 +145,9 @@ export class DFUProgrammer {
     device: string
   ): Promise<boolean | Error> {
     return new Promise((resolve, reject) => {
-      const command: string = dfuProgrammer;
       const args = [device, 'reset'];
 
-      const resetter = spawn(command, args);
+      const resetter = spawn(dfuProgrammerBinary, args);
 
       const cancelID = timeoutBuilder(reject, resetter, 'Reset Timedout');
 
