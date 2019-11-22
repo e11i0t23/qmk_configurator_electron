@@ -58,9 +58,11 @@ export class DFUProgrammer {
    * @return {Promise} resolve - successfully erased mcu
    * @module programmers/dfuProgrammer
    */
-  eraseChip(device: string): Promise<boolean | Error> {
+  static eraseChip(
+    loggerNoLF: (msg: string) => void,
+    device: string
+  ): Promise<boolean | Error> {
     const ERASED_NOT_BLANK = 5;
-    const loggerNoLF = this.loggerNoLF;
     return new Promise(function eraseChipResolver(resolve, reject) {
       let command = dfuProgrammer;
       let args = [device, 'erase'];
@@ -103,8 +105,10 @@ export class DFUProgrammer {
    * @return {Promise} flash failed resolve or successfully flashed mcu
    * @module programmers/dfuProgrammer
    */
-  flashChip(device: string): Promise<boolean | Error> {
-    const loggerNoLF = this.loggerNoLF;
+  static flashChip(
+    loggerNoLF: (msg: string) => void,
+    device: string
+  ): Promise<boolean | Error> {
     return new Promise((resolve, reject) => {
       const command = dfuProgrammer;
       const args = [device, 'flash', window.inputPath];
@@ -137,8 +141,10 @@ export class DFUProgrammer {
    * @return {Promise} resolve - successfully reset mcu
    * @see  programmers/dfuProgrammer
    */
-  resetChip(device: string): Promise<boolean | Error> {
-    const loggerNoLF = this.loggerNoLF;
+  static resetChip(
+    loggerNoLF: (msg: string) => void,
+    device: string
+  ): Promise<boolean | Error> {
     return new Promise((resolve, reject) => {
       const command: string = dfuProgrammer;
       const args = [device, 'reset'];
@@ -176,10 +182,10 @@ export class DFUProgrammer {
   methods(): Methods {
     const processor = this.processor;
     const isCompatible = this.isCompatible.bind(this);
-    const eraseChip = this.eraseChip.bind(this);
-    const flashChip = this.flashChip.bind(this);
-    const resetChip = this.resetChip.bind(this);
     const loggerNoLF = this.loggerNoLF;
+    const eraseChip = DFUProgrammer.eraseChip.bind(this, loggerNoLF);
+    const flashChip = DFUProgrammer.flashChip.bind(this, loggerNoLF);
+    const resetChip = DFUProgrammer.resetChip.bind(this, loggerNoLF);
     const ra: (
       fn: Promise<unknown>,
       successMsg: string,
