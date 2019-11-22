@@ -43,7 +43,15 @@ function selector(processor?: string): void {
               atmelSamBa();
             } else {
               window.Bridge.statusAppend('Using DFU-Programmer');
-              setTimeout(() => dfuProgrammerFlash(productID, processor), 500);
+              setTimeout(
+                () =>
+                  dfuProgrammerFlash(
+                    productID,
+                    processor,
+                    window.Bridge.statusAppendNoLF
+                  ),
+                500
+              );
             }
             flashing = true;
           }

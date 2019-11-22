@@ -231,13 +231,13 @@ export class DFUProgrammer {
  * @param {string} processor processor submitted from api
  * @module programmers/dfuProgrammer
  */
-export function dfuProgrammerFlash(productID: number, processor: string): void {
+export function dfuProgrammerFlash(
+  productID: number,
+  processor: string,
+  loggerNoLF: (msg: string) => void
+): void {
   if (processor) {
-    const programmer = new DFUProgrammer(
-      productID,
-      processor,
-      window.Bridge.statusAppendNoLF
-    );
+    const programmer = new DFUProgrammer(productID, processor, loggerNoLF);
     const sm = newStateMachine({methods: programmer.methods()});
     sm.ready();
   } else {
@@ -251,11 +251,7 @@ export function dfuProgrammerFlash(productID: number, processor: string): void {
         if (r === null) {
           window.Bridge.statusAppend('No selection made flashing cancelled');
         } else {
-          const programmer = new DFUProgrammer(
-            productID,
-            r,
-            window.Bridge.statusAppendNoLF
-          );
+          const programmer = new DFUProgrammer(productID, r, loggerNoLF);
           const sm = newStateMachine({methods: programmer.methods()});
           sm.ready();
         }

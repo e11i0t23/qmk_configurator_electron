@@ -20,9 +20,20 @@ function createWindow(): void {
   win = new BrowserWindow({
     height: 800,
     webPreferences: {
-      allowRunningInsecureContent: true,
-      nodeIntegration: false,
+      allowRunningInsecureContent: false,
       preload: path.join(__dirname, 'preload.js'),
+      nativeWindowOpen: false,
+      nodeIntegrationInWorker: false,
+      nodeIntegrationInSubFrames: false,
+      safeDialogs: true,
+      webSecurity: true,
+      webviewTag: false,
+      /* future security features to turn on
+      sandbox: true,
+      nodeIntegration: false,
+      contextIsolation: true,
+      enableRemoteModule: false,
+       */
     },
     width: 1200,
   });
