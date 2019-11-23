@@ -97,6 +97,7 @@
   },
   "dependencies": {
     "@serialport/bindings": "3",
+    "@types/node-hid": "^0.7.3",
     "@types/serialport": "^7.0.4",
     "electron-log": "^3.0.9",
     "electron-prompt": "^1.4.0",
@@ -107,9 +108,11 @@
     "install": "^0.13.0",
     "lodash": "^4.17.15",
     "node-abi": "^2.12.0",
+    "node-hid": "^0.7.9",
     "path": "^0.12.7",
     "serialport": "^8.0.5",
     "temp": "^0.9.0",
-    "usb": "^1.6.0"
+    "usb": "^1.6.0",
+    "usb-detection": "kryops/node-usb-detection#node13"
   }
 }

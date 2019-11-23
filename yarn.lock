@@ -236,6 +236,13 @@
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.146.tgz#de0d2c8610012f12a6a796455054cbc654f8fecf"
   integrity sha512-JzJcmQ/ikHSv7pbvrVNKJU5j9jL9VLf3/gqs048CEnBVVVEv4kve3vLxoPHGvclutS+Il4SBIuQQ087m1eHffw==
 
+"@types/node-hid@^0.7.3":
+  version "0.7.3"
+  resolved "https://registry.yarnpkg.com/@types/node-hid/-/node-hid-0.7.3.tgz#993762b795473dc2ad8ee041f870838735087532"
+  integrity sha512-ip+Un3Ps0Qok3W3fMgYxaYxVYcbjDYM7yXNm8Uf1sggvSeXL/Q+vZG0AdSDWDQO9apQSE7Yieb4SjfymF1OqPA==
+  dependencies:
+    "@types/node" "*"
+
 "@types/node@*", "@types/node@^12.0.12", "@types/node@^12.12.7":
   version "12.12.7"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.7.tgz#01e4ea724d9e3bd50d90c11fd5980ba317d8fa11"
@@ -821,7 +828,7 @@ bindings@1.3.0:
   resolved "https://registry.yarnpkg.com/bindings/-/bindings-1.3.0.tgz#b346f6ecf6a95f5a815c5839fc7cdb22502f1ed7"
   integrity sha512-DpLh5EzMR2kzvX1KIlVC0VkC3iZtHKTgdtZ0a3pglBZdaQFjt5S9g9xd1lE+YvXyfd6mtCeRnrUfOLYiTMlNSw==
 
-bindings@^1.4.0, bindings@^1.5.0:
+bindings@^1.3.0, bindings@^1.4.0, bindings@^1.5.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/bindings/-/bindings-1.5.0.tgz#10353c9e945334bc0511a6d90b38fbc7c9c504df"
   integrity sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==
@@ -1751,6 +1758,11 @@ esutils@^2.0.2:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/esutils/-/esutils-2.0.3.tgz#74d2eb4de0b8da1293711910d50775b9b710ef64"
   integrity sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==
+
+eventemitter2@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/eventemitter2/-/eventemitter2-5.0.1.tgz#6197a095d5fb6b57e8942f6fd7eaad63a09c9452"
+  integrity sha1-YZegldX7a1folC9v1+qtY6CclFI=
 
 eventie@^1:
   version "1.0.6"
@@ -2940,7 +2952,7 @@ node-gyp@^5.0.1:
     tar "^4.4.12"
     which "1"
 
-node-hid@^0.7.7:
+node-hid@^0.7.7, node-hid@^0.7.9:
   version "0.7.9"
   resolved "https://registry.yarnpkg.com/node-hid/-/node-hid-0.7.9.tgz#cc0cdf1418a286a7667f0b63642b5eeb544ccd05"
   integrity sha512-vJnonTqmq3frCyTumJqG4g2IZcny3ynkfmbfDfQ90P3ZhRzcWYS/Um1ux6HFmAxmkaQnrZqIYHcGpL7kdqY8jA==
@@ -3215,7 +3227,7 @@ prebuild-install@^4.0.0:
     tunnel-agent "^0.6.0"
     which-pm-runs "^1.0.0"
 
-prebuild-install@^5.3.0, prebuild-install@^5.3.3:
+prebuild-install@^5.1.0, prebuild-install@^5.3.0, prebuild-install@^5.3.3:
   version "5.3.3"
   resolved "https://registry.yarnpkg.com/prebuild-install/-/prebuild-install-5.3.3.tgz#ef4052baac60d465f5ba6bf003c9c1de79b9da8e"
   integrity sha512-GV+nsUXuPW2p8Zy7SarF/2W/oiK8bFQgJcncoJ0d7kRpekEA0ftChjfEaF9/Y+QJEc/wFR7RAEa8lYByuUIe2g==
@@ -4296,6 +4308,15 @@ url-parse-lax@^3.0.0:
   integrity sha1-FrXK/Afb42dsGxmZF3gj1lA6yww=
   dependencies:
     prepend-http "^2.0.0"
+
+usb-detection@kryops/node-usb-detection#node13:
+  version "4.5.0"
+  resolved "https://codeload.github.com/kryops/node-usb-detection/tar.gz/a57c95249dc97b596f9a3f24059885a87a3e2e5d"
+  dependencies:
+    bindings "^1.3.0"
+    eventemitter2 "^5.0.1"
+    nan "^2.13.2"
+    prebuild-install "^5.1.0"
 
 usb@^1.6.0:
   version "1.6.1"
