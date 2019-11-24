@@ -1,6 +1,6 @@
 # QMK Configurator Desktop
 
-Beta version of an Electron based configurator desktop app with intergrated flashing
+Beta version of an Electron based [configurator](https://config.qmk.fm) desktop app with intergrated flashing
 
 ## Development
 
@@ -13,15 +13,19 @@ nvm use
 
 ### Project setup
 ```
-yarn install  
-yarn run dist
+yarn install
 ```  
-A build must be performed as it invokes rebuilding native modules (this will be updated soon)
 
-### Compiles for development
+### Running in development
 ```
-yarn run start
+yarn run start  
 ```
+When developing `yarn run watch` can additionally be run to allow hot reloading with `ctrl-r` or `cmd-r`
+
+we use [electron-log](https://www.npmjs.com/package/electron-log) for logging. Logs can be found at:  
+* on Linux: ~/.config/qmk_configurator_electron/log.log  
+* on macOS: ~/Library/Logs/qmk_configurator_electron/log.log  
+* on Windows: %USERPROFILE%\AppData\Roaming\qmk_configurator_electron\log.log  
 
 ### Compiles and minifies for production
 ```
@@ -30,16 +34,15 @@ yarn run dist
 
 ## App Structure
 ```  
-├──dist  (generated on `yarn run dist`)  
 ├──build (contains extra files required for build)  
 ├──programmers  (This contains the binaries for the included programmers)  
 └──src  
     ├──modules  (flashing related files)  
       ├──programmers (Scripts that invoke the different programmers)  
-      └──selector.js (choses which programming module to use)
+      └──selector.ts (choses which programming module to use)
     ├──flash.js  (contains functions shared with the vue app 
-    ├──main.js  (main file invoked by electron)  
-    └──preload.js  (shares code between electron and vue)  
+    ├──main.ts  (main file invoked by electron)  
+    └──preload.ts  (shares code between electron and vue)  
 ```
 
 ### Supporting following bootloaders:
