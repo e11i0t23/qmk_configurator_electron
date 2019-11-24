@@ -20,7 +20,7 @@ yarn install
 ```
 yarn run start  
 ```
-When developing `yarn run watch` can additionally be run to allow hot reloading with `ctrl-r` or `cmd-r`
+When developing additionally `yarn run watch` can be run to allow hot reloading with `ctrl-r` or `cmd-r`
 
 we use [electron-log](https://www.npmjs.com/package/electron-log) for logging. Logs can be found at:  
 * on Linux: ~/.config/qmk_configurator_electron/log.log  
