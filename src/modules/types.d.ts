@@ -1,6 +1,8 @@
 export class StateMachine {
   constructor(options: Partial<Options>);
   static factory(options: Partial<Options>): IFSM;
+  // this is part of upstream signature
+  // eslint-disable-next-line
   static factory<T>(instance: T, options: Partial<Options>): IFSM | T;
   [action: string]: (...args: any[]) => any;
   is: StateMachineIs;
@@ -77,6 +79,8 @@ export interface Options {
   plugins?: any[];
 }
 
+// this is part of upstream signature
+// eslint-disable-next-line
 export interface IFSM {
   new (...data: any[]): StateMachine;
 }
