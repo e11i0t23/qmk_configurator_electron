@@ -34,7 +34,6 @@ function selector(processor?: string): void {
     const programmer = deviceIDs.get(vendorID);
     if (!isUndefined(programmer)) {
       // Forwards onto seperate programming scripts found in ./modules/programmers
-      let mcu = '';
       switch (programmer) {
         case 'dfu-programmer':
           if (!flashing) {
@@ -60,7 +59,6 @@ function selector(processor?: string): void {
           if (!flashing) {
             flashing = true;
             window.Bridge.statusAppend('Using avrdude to flash caterina');
-            mcu = 'm32u4';
             AVRDudeFlash(
               window.inputPath,
               AVRDudeFamily.CATERINA,
@@ -71,7 +69,6 @@ function selector(processor?: string): void {
         case 'avrisp/usbasp':
           if (!flashing) {
             flashing = true;
-            mcu = 'm32u4';
             if (productID == 0x0483) {
               window.Bridge.statusAppend('Using avrdude to flash avrisp');
               AVRDudeFlash(

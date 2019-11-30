@@ -6,7 +6,7 @@ import {timeoutBuilder, responseAdapter} from './utils';
 
 const spawn = childProcess.spawn;
 import SerialPort from 'serialport';
-import prompt from 'electron-prompt';
+//import prompt from 'electron-prompt';
 import log from 'electron-log';
 
 export enum Family {
