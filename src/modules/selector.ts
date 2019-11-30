@@ -97,9 +97,17 @@ function selector(processor?: string): void {
             flashing = true;
             window.Bridge.statusAppend('Using dfu-util to flash dfu');
             if (vendorID === 0x0483) {
-              dfuUtilFlash(window.inputPath, Family.stm32);
+              dfuUtilFlash(
+                window.inputPath,
+                Family.stm32,
+                window.Bridge.statusAppendNoLF
+              );
             } else if (vendorID === 0x1c11) {
-              dfuUtilFlash(window.inputPath, Family.kiibohd);
+              dfuUtilFlash(
+                window.inputPath,
+                Family.kiibohd,
+                window.Bridge.statusAppendNoLF
+              );
             }
           }
           break;
