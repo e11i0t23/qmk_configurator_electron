@@ -54,7 +54,7 @@ export class DFUUtil {
       dfuer.on('exit', (code: unknown /*, signal*/) => {
         clearTimeout(cancelID);
         if (code === 0) {
-          resolve(true);
+          resolve({kind: 'response', value: true});
         } else {
           if (code === null) {
             reject(new Error('Flash Timedout'));
@@ -103,12 +103,15 @@ export class DFUUtil {
     ) => Promise<StateMachineRet> = responseAdapter.bind(undefined, loggerNoLF);
     const fw: FlashWriter = {
       validator(): PromiseLike<StateMachineRet> {
+        loggerNoLF('');
         return ra(
           new Promise((resolve, reject) => {
-            filename.endsWith('bin') ? resolve(true) : reject(false);
+            filename.endsWith('bin')
+              ? resolve({kind: 'response', value: true})
+              : reject(new Error('filename should end with bin'));
           }),
-          `found .bin file`,
-          `dfu-util only works with .bin files`
+          `\nfound .bin file`,
+          `\ndfu-util only works with .bin files`
         );
       },
       flasher(): PromiseLike<StateMachineRet> {

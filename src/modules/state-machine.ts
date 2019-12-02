@@ -1,45 +1,54 @@
 import StateMachineC from 'javascript-state-machine';
 import log from 'electron-log';
 
-import {StateMachine, Options, ResponseNeeded, StateMachineRet} from './types';
+import {
+  StateMachine,
+  Options,
+  StateMachineRet,
+  Response,
+  Request,
+} from './types';
 import transitions from './transitions';
 import {WAITING} from './transitions';
-import {bindAndRunNextTick} from './programmers/utils';
+import {bindAndRunNextTick, instanceOfResponse} from './programmers/utils';
 
 const debug = true;
+
+const OK: Response = {kind: 'response', value: true};
 
 const defaultOptions: Options = {
   name: 'flashStateMachine',
   init: WAITING,
   transitions,
-  data: (): {error: Error} => {
+  data: (): {error: Error; request: Request} => {
     return {
       error: undefined,
+      request: undefined,
     };
   },
   methods: {
     // Override this with erasing function
     validator: function(): PromiseLike<StateMachineRet> {
       return new Promise((resolve) => {
-        resolve(true);
+        resolve(OK);
       });
     },
     // Override this with erasing function
     eraser: function(): PromiseLike<StateMachineRet> {
       return new Promise((resolve) => {
-        resolve(true);
+        resolve(OK);
       });
     },
     // Override this with flasher function
     flasher: function(): PromiseLike<StateMachineRet> {
       return new Promise((resolve) => {
-        resolve(true);
+        resolve(OK);
       });
     },
     // Override this with restarter function
     restarter: function(): PromiseLike<StateMachineRet> {
       return new Promise((resolve) => {
-        resolve(true);
+        resolve(OK);
       });
     },
     failer(): PromiseLike<StateMachineRet> {
@@ -51,7 +60,7 @@ const defaultOptions: Options = {
     succeeder(): PromiseLike<StateMachineRet> {
       return new Promise((resolve) => {
         window.Bridge.statusAppend('Flash Succeeded. Enjoy your new keymap');
-        resolve(true);
+        resolve(OK);
       });
     },
     onEnterValidating: function(): PromiseLike<StateMachineRet> {
@@ -59,16 +68,17 @@ const defaultOptions: Options = {
       const timedOut = bindAndRunNextTick(this, this.timedOut);
       const validated = bindAndRunNextTick(this, this.validated);
       return this.validator()
-        .then((r: boolean | ResponseNeeded | Error) => {
-          if (r) {
-            validated();
-          } else {
+        .then((r: StateMachineRet) => {
+          if (r instanceof Error) {
             this.error = r;
-            if (r instanceof Error && r.name === 'TimedOutError') {
+            if (r.name === 'TimedOutError') {
               timedOut();
             } else {
               errored();
             }
+          }
+          if (instanceOfResponse(r) && r.value === true) {
+            validated();
           }
           return r;
         })
@@ -86,15 +96,16 @@ const defaultOptions: Options = {
       return this.eraser()
         .then((r: StateMachineRet) => {
           debug && console.log('erased');
-          if (r) {
-            erased();
-          } else {
+          if (r instanceof Error) {
             this.error = r;
-            if (r instanceof Error && r.name === 'TimedOutError') {
+            if (r.name === 'TimedOutError') {
               timedOut();
             } else {
               errored();
             }
+          }
+          if (instanceOfResponse(r) && r.value === true) {
+            erased();
           }
           return r;
         })
@@ -112,15 +123,16 @@ const defaultOptions: Options = {
       return this.flasher()
         .then((r: StateMachineRet) => {
           debug && console.log('flashed');
-          if (r) {
-            flashed();
-          } else {
+          if (r instanceof Error) {
             this.error = r;
-            if (r instanceof Error && r.name === 'TimedOutError') {
+            if (r.name === 'TimedOutError') {
               timedOut();
             } else {
               errored();
             }
+          }
+          if (instanceOfResponse(r) && r.value === true) {
+            flashed();
           }
           return r;
         })
@@ -138,15 +150,16 @@ const defaultOptions: Options = {
       return this.restarter()
         .then((r: StateMachineRet) => {
           debug && console.log('restarted');
-          if (r) {
-            restarted();
-          } else {
+          if (r instanceof Error) {
             this.error = r;
-            if (r instanceof Error && r.name === 'TimedOutError') {
+            if (r.name === 'TimedOutError') {
               timedOut();
             } else {
               errored();
             }
+          }
+          if (instanceOfResponse(r) && r.value === true) {
+            restarted();
           }
         })
         .catch((err: string) => {

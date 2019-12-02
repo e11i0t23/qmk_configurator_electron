@@ -96,7 +96,7 @@ export class AVRDude {
       avrduder.on('exit', (code: unknown) => {
         clearTimeout(cancelID);
         if (code === 0) {
-          resolve(true);
+          resolve({kind: 'response', value: true});
         } else {
           if (code === null) {
             reject(new Error('Flash Timedout'));
@@ -151,7 +151,7 @@ export class AVRDude {
             // @
             if (family === Family.USBASP) {
               setComName('usb');
-              resolve(true);
+              resolve({kind: 'response', value: true});
               return;
             }
 
@@ -163,10 +163,10 @@ export class AVRDude {
                 );
                 if (idx > -1) {
                   setComName(ports[idx].comName);
-                  resolve(true);
+                  resolve({kind: 'response', value: true});
                 } else {
                   setComName('');
-                  reject(false);
+                  reject(new Error('No comport'));
                 }
               })
               .catch(loggerNoLF);

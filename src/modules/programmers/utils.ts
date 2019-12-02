@@ -1,5 +1,5 @@
 import * as childProcess from 'child_process';
-import {StateMachineRet} from '../types';
+import {StateMachineRet, Response} from '../types';
 
 const timerTimeout = 10000;
 
@@ -49,4 +49,8 @@ export function bindAndRunNextTick(self: unknown, fn: Function): Function {
   return (): void => {
     setTimeout(fn.bind(self), 0);
   };
+}
+
+export function instanceOfResponse(object: any): object is Response {
+  return object.kind === 'response';
 }

@@ -4,10 +4,12 @@ const spawn = childProcess.spawn;
 import prompt from 'electron-prompt';
 import log from 'electron-log';
 import first from 'lodash/first';
-import {FlashWriter, Methods, StateMachineRet} from '../types';
+import {FlashWriter, Methods, StateMachineRet, Response} from '../types';
 import {newStateMachine} from '../state-machine';
 
 import {timeoutBuilder, responseAdapter} from './utils';
+
+const OK: Response = {kind: 'response', value: true};
 
 const atmelDevices: Map<number, Array<string>> = new Map([
   [12270, ['atmega8u2']],
@@ -87,7 +89,7 @@ export class DFUProgrammer {
           str === '' ||
           regex.test(str)
         ) {
-          resolve(true);
+          resolve(OK);
         } else {
           loggerNoLF(` ${str}`);
           if (code === null) {
@@ -123,7 +125,7 @@ export class DFUProgrammer {
       flasher.on('exit', (code: unknown) => {
         clearTimeout(cancelID);
         if (code === 0) {
-          resolve(true);
+          resolve(OK);
         } else {
           if (code !== null) {
             loggerNoLF(`Flashing Failed ${code}`);
@@ -154,7 +156,7 @@ export class DFUProgrammer {
       resetter.on('exit', (code: unknown) => {
         clearTimeout(cancelID);
         if (code === 0) {
-          resolve(true);
+          resolve(OK);
         } else {
           if (code !== null) {
             loggerNoLF('Reset Failed');
@@ -193,7 +195,9 @@ export class DFUProgrammer {
       validator(): PromiseLike<StateMachineRet> {
         return ra(
           new Promise((resolve, reject) => {
-            isCompatible() ? resolve(true) : reject(false);
+            isCompatible()
+              ? resolve(OK)
+              : reject(new Error('incompatible mcu'));
           }),
           `Found USB Device ${processor}`,
           'Please connect the Keyboard and press reset'

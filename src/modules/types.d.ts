@@ -85,20 +85,26 @@ export interface IFSM {
   new (...data: any[]): StateMachine;
 }
 
-export interface FlashWriter {
-  validator?(): PromiseLike<boolean | Error>;
-  eraser?(): PromiseLike<boolean | Error>;
-  flasher(): PromiseLike<boolean | Error>;
-  restarter?(): PromiseLike<boolean | Error>;
-  failer?(): PromiseLike<boolean | Error>;
-  succeeder?(): PromiseLike<boolean | Error>;
-}
-
-export interface ResponseNeeded {
+export interface Request {
+  kind: 'request';
   title?: string;
-  question?: string;
+  query?: string;
   height?: number;
   defaultValue: string | number | boolean;
 }
 
-export type StateMachineRet = boolean | Error;
+export interface Response {
+  kind: 'response';
+  value: string | number | boolean;
+}
+
+export type StateMachineRet = Request | Response | Error;
+
+export interface FlashWriter {
+  validator?(): PromiseLike<StateMachineRet>;
+  eraser?(): PromiseLike<StateMachineRet>;
+  flasher(): PromiseLike<StateMachineRet>;
+  restarter?(): PromiseLike<StateMachineRet>;
+  failer?(): PromiseLike<StateMachineRet>;
+  succeeder?(): PromiseLike<StateMachineRet>;
+}
