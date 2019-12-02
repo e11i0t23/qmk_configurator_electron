@@ -74,7 +74,7 @@ const defaultOptions: Options = {
         })
         .catch((r: boolean | Error) => {
           this.error = 'Unsupported bootloader';
-          setTimeout(errored, 0);
+          errored();
           return r;
         }) as PromiseLike<boolean | Error>;
     },
@@ -100,7 +100,7 @@ const defaultOptions: Options = {
         })
         .catch((err: string) => {
           this.error = err;
-          setTimeout(errored, 0);
+          errored();
           console.log('crashed', err);
         });
     },
@@ -126,7 +126,7 @@ const defaultOptions: Options = {
         })
         .catch((err: string) => {
           this.error = err;
-          setTimeout(errored, 0);
+          errored();
           console.log('crashed', err);
         });
     },
@@ -139,19 +139,19 @@ const defaultOptions: Options = {
         .then((r: boolean | Error) => {
           debug && console.log('restarted');
           if (r) {
-            setTimeout(restarted, 0);
+            restarted();
           } else {
             this.error = r;
             if (r instanceof Error && r.name === 'TimedOutError') {
-              setTimeout(timedOut, 0);
+              timedOut();
             } else {
-              setTimeout(errored, 0);
+              errored();
             }
           }
         })
         .catch((err: string) => {
           this.error = err;
-          setTimeout(errored, 0);
+          errored();
           console.log('crashed', err);
         });
     },
