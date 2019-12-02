@@ -93,3 +93,12 @@ export interface FlashWriter {
   failer?(): PromiseLike<boolean | Error>;
   succeeder?(): PromiseLike<boolean | Error>;
 }
+
+export interface ResponseNeeded {
+  title?: string;
+  question?: string;
+  height?: number;
+  defaultValue: string | number | boolean;
+}
+
+export type StateMachineRet = boolean | Error;

@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as childProcess from 'child_process';
 import {newStateMachine} from '../state-machine';
-import {FlashWriter, Methods} from '../types';
+import {FlashWriter, Methods, StateMachineRet} from '../types';
 import {timeoutBuilder, responseAdapter} from './utils';
 
 const spawn = childProcess.spawn;
@@ -74,7 +74,7 @@ export class AVRDude {
     args: Array<string>,
     comName: string,
     loggerNoLF: (msg: string) => void
-  ): Promise<boolean | Error> {
+  ): Promise<StateMachineRet> {
     return new Promise((resolve, reject) => {
       // TODO - comName deprecated in 8, need to move to path
       // typescript bindings haven't been updated
@@ -109,7 +109,7 @@ export class AVRDude {
       avrduder.stdout.on('data', loggerNoLF);
       avrduder.stderr.on('data', loggerNoLF);
       return avrduder;
-    }) as Promise<boolean | Error>;
+    });
   }
 
   methods(): Methods {
@@ -123,9 +123,9 @@ export class AVRDude {
       fn: Promise<unknown>,
       successMsg: string,
       failMsg: unknown
-    ) => Promise<boolean | Error> = responseAdapter.bind(undefined, loggerNoLF);
+    ) => Promise<StateMachineRet> = responseAdapter.bind(undefined, loggerNoLF);
     const fw: FlashWriter = {
-      validator(): Promise<boolean | Error> {
+      validator(): Promise<StateMachineRet> {
         const vendorIDs = VendorIDs.get(family);
         return ra(
           new Promise((resolve, reject) => {
@@ -175,7 +175,7 @@ export class AVRDude {
           'No device Port found'
         );
       },
-      flasher(): Promise<boolean | Error> {
+      flasher(): Promise<StateMachineRet> {
         loggerNoLF('Flashing processor');
         let args: Array<string> = [];
         switch (family) {

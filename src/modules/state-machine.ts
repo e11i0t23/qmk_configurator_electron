@@ -1,7 +1,7 @@
 import StateMachineC from 'javascript-state-machine';
 import log from 'electron-log';
 
-import {StateMachine, Options} from './types';
+import {StateMachine, Options, ResponseNeeded, StateMachineRet} from './types';
 import transitions from './transitions';
 import {WAITING} from './transitions';
 import {bindAndRunNextTick} from './programmers/utils';
@@ -19,47 +19,47 @@ const defaultOptions: Options = {
   },
   methods: {
     // Override this with erasing function
-    validator: function(): PromiseLike<boolean | Error> {
+    validator: function(): PromiseLike<StateMachineRet> {
       return new Promise((resolve) => {
         resolve(true);
       });
     },
     // Override this with erasing function
-    eraser: function(): PromiseLike<boolean | Error> {
+    eraser: function(): PromiseLike<StateMachineRet> {
       return new Promise((resolve) => {
         resolve(true);
       });
     },
     // Override this with flasher function
-    flasher: function(): PromiseLike<boolean | Error> {
+    flasher: function(): PromiseLike<StateMachineRet> {
       return new Promise((resolve) => {
         resolve(true);
       });
     },
     // Override this with restarter function
-    restarter: function(): PromiseLike<boolean | Error> {
+    restarter: function(): PromiseLike<StateMachineRet> {
       return new Promise((resolve) => {
         resolve(true);
       });
     },
-    failer(): PromiseLike<boolean | Error> {
+    failer(): PromiseLike<StateMachineRet> {
       return new Promise((resolve, reject) => {
         window.Bridge.statusAppend(`Flash Failed. ${this.error}`);
         reject(this.error);
       });
     },
-    succeeder(): PromiseLike<boolean | Error> {
+    succeeder(): PromiseLike<StateMachineRet> {
       return new Promise((resolve) => {
         window.Bridge.statusAppend('Flash Succeeded. Enjoy your new keymap');
         resolve(true);
       });
     },
-    onEnterValidating: function(): PromiseLike<boolean | Error> {
+    onEnterValidating: function(): PromiseLike<StateMachineRet> {
       const errored = bindAndRunNextTick(this, this.errored);
       const timedOut = bindAndRunNextTick(this, this.timedOut);
       const validated = bindAndRunNextTick(this, this.validated);
       return this.validator()
-        .then((r: boolean | Error) => {
+        .then((r: boolean | ResponseNeeded | Error) => {
           if (r) {
             validated();
           } else {
@@ -72,19 +72,19 @@ const defaultOptions: Options = {
           }
           return r;
         })
-        .catch((r: boolean | Error) => {
+        .catch((r: StateMachineRet) => {
           this.error = 'Unsupported bootloader';
           errored();
           return r;
-        }) as PromiseLike<boolean | Error>;
+        });
     },
-    onEnterErasing: function(): PromiseLike<boolean | Error> {
+    onEnterErasing: function(): PromiseLike<StateMachineRet> {
       debug && console.log('erase runs now');
       const erased = bindAndRunNextTick(this, this.erased);
       const timedOut = bindAndRunNextTick(this, this.timedOut);
       const errored = bindAndRunNextTick(this, this.errored);
       return this.eraser()
-        .then((r: boolean | Error) => {
+        .then((r: StateMachineRet) => {
           debug && console.log('erased');
           if (r) {
             erased();
@@ -104,13 +104,13 @@ const defaultOptions: Options = {
           console.log('crashed', err);
         });
     },
-    onEnterFlashing: function(): PromiseLike<boolean | Error> {
+    onEnterFlashing: function(): PromiseLike<StateMachineRet> {
       debug && console.log('flash runs now');
       const errored = bindAndRunNextTick(this, this.errored);
       const flashed = bindAndRunNextTick(this, this.flashed);
       const timedOut = bindAndRunNextTick(this, this.timedOut);
       return this.flasher()
-        .then((r: boolean | Error) => {
+        .then((r: StateMachineRet) => {
           debug && console.log('flashed');
           if (r) {
             flashed();
@@ -130,13 +130,13 @@ const defaultOptions: Options = {
           console.log('crashed', err);
         });
     },
-    onEnterRestarting: function(): PromiseLike<boolean | Error> {
+    onEnterRestarting: function(): PromiseLike<StateMachineRet> {
       debug && console.log('restarting');
       const restarted = bindAndRunNextTick(this, this.restarted);
       const errored = bindAndRunNextTick(this, this.errored);
       const timedOut = bindAndRunNextTick(this, this.timedOut);
       return this.restarter()
-        .then((r: boolean | Error) => {
+        .then((r: StateMachineRet) => {
           debug && console.log('restarted');
           if (r) {
             restarted();

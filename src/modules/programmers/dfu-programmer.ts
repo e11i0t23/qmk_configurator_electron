@@ -4,7 +4,7 @@ const spawn = childProcess.spawn;
 import prompt from 'electron-prompt';
 import log from 'electron-log';
 import first from 'lodash/first';
-import {FlashWriter, Methods} from '../types';
+import {FlashWriter, Methods, StateMachineRet} from '../types';
 import {newStateMachine} from '../state-machine';
 
 import {timeoutBuilder, responseAdapter} from './utils';
@@ -61,7 +61,7 @@ export class DFUProgrammer {
   static eraseChip(
     loggerNoLF: (msg: string) => void,
     device: string
-  ): Promise<boolean | Error> {
+  ): Promise<StateMachineRet> {
     const ERASED_NOT_BLANK = 5;
     return new Promise(function eraseChipResolver(resolve, reject) {
       let command = dfuProgrammerBinary;
@@ -108,7 +108,7 @@ export class DFUProgrammer {
   static flashChip(
     loggerNoLF: (msg: string) => void,
     device: string
-  ): Promise<boolean | Error> {
+  ): Promise<StateMachineRet> {
     return new Promise((resolve, reject) => {
       const args = [device, 'flash', window.inputPath];
       const flasher = spawn(dfuProgrammerBinary, args);
@@ -143,7 +143,7 @@ export class DFUProgrammer {
   static resetChip(
     loggerNoLF: (msg: string) => void,
     device: string
-  ): Promise<boolean | Error> {
+  ): Promise<StateMachineRet> {
     return new Promise((resolve, reject) => {
       const args = [device, 'reset'];
 
@@ -188,9 +188,9 @@ export class DFUProgrammer {
       fn: Promise<unknown>,
       successMsg: string,
       failMsg: unknown
-    ) => Promise<boolean | Error> = responseAdapter.bind(undefined, loggerNoLF);
+    ) => Promise<StateMachineRet> = responseAdapter.bind(undefined, loggerNoLF);
     const fw: FlashWriter = {
-      validator(): PromiseLike<boolean | Error> {
+      validator(): PromiseLike<StateMachineRet> {
         return ra(
           new Promise((resolve, reject) => {
             isCompatible() ? resolve(true) : reject(false);
@@ -199,11 +199,11 @@ export class DFUProgrammer {
           'Please connect the Keyboard and press reset'
         );
       },
-      eraser(): PromiseLike<boolean | Error> {
+      eraser(): PromiseLike<StateMachineRet> {
         loggerNoLF(`Erasing ${processor}\n`);
         return ra(eraseChip(processor), 'Erase Succeeded', 'Erase Failed');
       },
-      flasher(): PromiseLike<boolean | Error> {
+      flasher(): PromiseLike<StateMachineRet> {
         loggerNoLF(`Flashing ${processor}\n`);
         return ra(
           flashChip(processor),
@@ -211,7 +211,7 @@ export class DFUProgrammer {
           (r: PromiseLike<Error>) => `Flashing Failed ${r}`
         );
       },
-      restarter(): PromiseLike<boolean | Error> {
+      restarter(): PromiseLike<StateMachineRet> {
         return ra(
           resetChip(processor),
           `Restarting Keyboard`,

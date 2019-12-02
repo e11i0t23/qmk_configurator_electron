@@ -1,8 +1,10 @@
 import * as childProcess from 'child_process';
+import {StateMachineRet} from '../types';
 
 const timerTimeout = 10000;
 
 export class TimedOutError extends Error {
+  // eslint-disable-next-line
   constructor(...params: any) {
     super(...params);
     // Maintains proper stack trace for where our error was thrown (only available on V8)
@@ -15,7 +17,7 @@ export class TimedOutError extends Error {
 }
 
 export function timeoutBuilder(
-  reject: (value?: boolean | Error | PromiseLike<boolean | Error>) => void,
+  reject: (value?: StateMachineRet | PromiseLike<StateMachineRet>) => void,
   spawner: childProcess.ChildProcess,
   errMsg: string,
   duration: number = timerTimeout
@@ -28,10 +30,10 @@ export function timeoutBuilder(
 
 export function responseAdapter(
   loggerFn: (msg: string) => void,
-  fn: Promise<unknown>,
+  fn: Promise<StateMachineRet>,
   successMsg: string,
   failMsg: unknown
-): Promise<any> {
+): Promise<StateMachineRet> {
   return fn
     .then((r) => {
       loggerFn(`${successMsg}\n`);
@@ -40,11 +42,11 @@ export function responseAdapter(
     .catch((r) => {
       loggerFn(`${typeof failMsg === 'function' ? failMsg(r) : failMsg}\n`);
       return r;
-    }) as Promise<unknown>;
+    });
 }
 
 export function bindAndRunNextTick(self: unknown, fn: Function): Function {
-  return () => {
+  return (): void => {
     setTimeout(fn.bind(self), 0);
   };
 }

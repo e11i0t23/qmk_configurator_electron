@@ -8,6 +8,8 @@ export const EV_ERRORED = 'ERRORED';
 export const EV_ERASED = 'ERASED';
 export const EV_FLASHED = 'FLASHED';
 export const EV_RESTARTED = 'RESTARTED';
+export const EV_RESPONSE_NEEDED = 'RESPONSE_NEEDED';
+export const EV_RESPONSE_RECEIVED = 'RESPONSE_RECEIVED';
 
 // STATES
 export const WAITING = 'WAITING';
@@ -17,11 +19,22 @@ export const FLASHING = 'FLASHING';
 export const RESTARTING = 'RESTARTING';
 export const FAILED = 'FAILED';
 export const SUCCESS = 'SUCCESS';
+export const AWAITING_RESPONSE = 'AWAITING_RESPONSE';
 
 const transitions: Transition[] = [
   {
     name: EV_READY,
     from: WAITING,
+    to: VALIDATING,
+  },
+  {
+    name: EV_RESPONSE_NEEDED,
+    from: VALIDATING,
+    to: AWAITING_RESPONSE,
+  },
+  {
+    name: EV_RESPONSE_RECEIVED,
+    from: AWAITING_RESPONSE,
     to: VALIDATING,
   },
   {
