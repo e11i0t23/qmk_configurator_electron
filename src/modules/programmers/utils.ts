@@ -42,3 +42,9 @@ export function responseAdapter(
       return r;
     }) as Promise<unknown>;
 }
+
+export function bindAndRunNextTick(self: unknown, fn: Function): Function {
+  return () => {
+    setTimeout(fn.bind(self), 0);
+  };
+}

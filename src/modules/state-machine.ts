@@ -4,6 +4,7 @@ import log from 'electron-log';
 import {StateMachine, Options} from './types';
 import transitions from './transitions';
 import {WAITING} from './transitions';
+import {bindAndRunNextTick} from './programmers/utils';
 
 const debug = true;
 
@@ -54,19 +55,19 @@ const defaultOptions: Options = {
       });
     },
     onEnterValidating: function(): PromiseLike<boolean | Error> {
-      const errored = this.errored.bind(this);
-      const timedOut = this.timedOut.bind(this);
-      const validated = this.validated.bind(this);
+      const errored = bindAndRunNextTick(this, this.errored);
+      const timedOut = bindAndRunNextTick(this, this.timedOut);
+      const validated = bindAndRunNextTick(this, this.validated);
       return this.validator()
         .then((r: boolean | Error) => {
           if (r) {
-            setTimeout(validated, 0);
+            validated();
           } else {
             this.error = r;
             if (r instanceof Error && r.name === 'TimedOutError') {
-              setTimeout(timedOut, 0);
+              timedOut();
             } else {
-              setTimeout(errored, 0);
+              errored();
             }
           }
           return r;
@@ -79,20 +80,20 @@ const defaultOptions: Options = {
     },
     onEnterErasing: function(): PromiseLike<boolean | Error> {
       debug && console.log('erase runs now');
-      const erased = this.erased.bind(this);
-      const timedOut = this.timedOut.bind(this);
-      const errored = this.errored.bind(this);
+      const erased = bindAndRunNextTick(this, this.erased);
+      const timedOut = bindAndRunNextTick(this, this.timedOut);
+      const errored = bindAndRunNextTick(this, this.errored);
       return this.eraser()
         .then((r: boolean | Error) => {
           debug && console.log('erased');
           if (r) {
-            setTimeout(erased, 0);
+            erased();
           } else {
             this.error = r;
             if (r instanceof Error && r.name === 'TimedOutError') {
-              setTimeout(timedOut, 0);
+              timedOut();
             } else {
-              setTimeout(errored, 0);
+              errored();
             }
           }
           return r;
@@ -105,20 +106,20 @@ const defaultOptions: Options = {
     },
     onEnterFlashing: function(): PromiseLike<boolean | Error> {
       debug && console.log('flash runs now');
-      const errored = this.errored.bind(this);
-      const flashed = this.flashed.bind(this);
-      const timedOut = this.timedOut.bind(this);
+      const errored = bindAndRunNextTick(this, this.errored);
+      const flashed = bindAndRunNextTick(this, this.flashed);
+      const timedOut = bindAndRunNextTick(this, this.timedOut);
       return this.flasher()
         .then((r: boolean | Error) => {
           debug && console.log('flashed');
           if (r) {
-            setTimeout(flashed, 0);
+            flashed();
           } else {
             this.error = r;
             if (r instanceof Error && r.name === 'TimedOutError') {
-              setTimeout(timedOut, 0);
+              timedOut();
             } else {
-              setTimeout(errored, 0);
+              errored();
             }
           }
           return r;
@@ -131,9 +132,9 @@ const defaultOptions: Options = {
     },
     onEnterRestarting: function(): PromiseLike<boolean | Error> {
       debug && console.log('restarting');
-      const restarted = this.restarted.bind(this);
-      const errored = this.errored.bind(this);
-      const timedOut = this.timedOut.bind(this);
+      const restarted = bindAndRunNextTick(this, this.restarted);
+      const errored = bindAndRunNextTick(this, this.errored);
+      const timedOut = bindAndRunNextTick(this, this.timedOut);
       return this.restarter()
         .then((r: boolean | Error) => {
           debug && console.log('restarted');
