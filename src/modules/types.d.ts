@@ -86,16 +86,16 @@ export interface IFSM {
 }
 
 export interface Request {
-  kind: 'request';
-  title?: string;
-  query?: string;
-  height?: number;
-  defaultValue: string | number | boolean;
+  readonly kind: 'request';
+  readonly title?: string;
+  readonly query?: string;
+  readonly height?: number;
+  readonly defaultValue: string | number | boolean;
 }
 
 export interface Response {
-  kind: 'response';
-  value: string | number | boolean;
+  readonly kind: 'response';
+  readonly value: string | number | boolean;
 }
 
 export type StateMachineRet = Request | Response | Error;
