@@ -97,6 +97,7 @@
   },
   "dependencies": {
     "@serialport/bindings": "^8.0.4",
+    "@types/node-hid": "^0.7.3",
     "@types/serialport": "^7.0.4",
     "electron-log": "^3.0.9",
     "electron-prompt": "^1.4.0",

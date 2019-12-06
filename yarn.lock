@@ -205,6 +205,13 @@
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.149.tgz#1342d63d948c6062838fbf961012f74d4e638440"
   integrity sha512-ijGqzZt/b7BfzcK9vTrS6MFljQRPn5BFWOx8oE0GYxribu6uV+aA9zZuXI1zc/etK9E8nrgdoF2+LgUw7+9tJQ==
 
+"@types/node-hid@^0.7.3":
+  version "0.7.3"
+  resolved "https://registry.yarnpkg.com/@types/node-hid/-/node-hid-0.7.3.tgz#993762b795473dc2ad8ee041f870838735087532"
+  integrity sha512-ip+Un3Ps0Qok3W3fMgYxaYxVYcbjDYM7yXNm8Uf1sggvSeXL/Q+vZG0AdSDWDQO9apQSE7Yieb4SjfymF1OqPA==
+  dependencies:
+    "@types/node" "*"
+
 "@types/node@*", "@types/node@^12.0.12", "@types/node@^12.12.7":
   version "12.12.11"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.11.tgz#bec2961975888d964196bf0016a2f984d793d3ce"
