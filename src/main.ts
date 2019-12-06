@@ -3,8 +3,14 @@ import log from 'electron-log';
 import {autoUpdater} from 'electron-updater';
 import * as path from 'path';
 
+import usbDetect from 'usb-detection';
+usbDetect.startMonitoring();
+
+usbDetect.on('add', function(device) {
+  console.log(device);
+});
+
 let win: Electron.BrowserWindow; // Global ref og window object
-// const HIDListen = require('hid-listen');
 
 /**
  * Initialize our app window
@@ -14,9 +20,20 @@ function createWindow(): void {
   win = new BrowserWindow({
     height: 800,
     webPreferences: {
-      allowRunningInsecureContent: true,
-      nodeIntegration: false,
+      allowRunningInsecureContent: false,
       preload: path.join(__dirname, 'preload.js'),
+      nativeWindowOpen: false,
+      nodeIntegrationInWorker: false,
+      nodeIntegrationInSubFrames: false,
+      safeDialogs: true,
+      webSecurity: true,
+      webviewTag: false,
+      /* future security features to turn on
+      sandbox: true,
+      nodeIntegration: false,
+      contextIsolation: true,
+      enableRemoteModule: false,
+       */
     },
     width: 1200,
   });
@@ -91,6 +108,7 @@ autoUpdater.on('update-downloaded', (info) => {
 });
 
 // app.on('browser-window-created', (event, win) => {});
+app.on('will-quit', () => {});
 
 app.on('ready', () => {
   autoUpdater.checkForUpdatesAndNotify();

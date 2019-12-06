@@ -13,7 +13,11 @@
       "*": ["node_modules/*"]
     },
     "allowJs": true,
-    "checkJs": false
+    "checkJs": false,
+    "typeRoots": [
+      "src/customTypings",
+      "node_modules/@types"
+    ]
   },
   "include": [
     "src/**/*"

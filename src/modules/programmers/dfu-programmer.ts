@@ -4,6 +4,12 @@ const spawn = childProcess.spawn;
 import prompt from 'electron-prompt';
 import log from 'electron-log';
 import first from 'lodash/first';
+import {FlashWriter, Methods, StateMachineRet, Response} from '../types';
+import {newStateMachine} from '../state-machine';
+
+import {timeoutBuilder, responseAdapter} from './utils';
+
+const OK: Response = {kind: 'response', value: true};
 
 const atmelDevices: Map<number, Array<string>> = new Map([
   [12270, ['atmega8u2']],
@@ -22,147 +28,205 @@ const atmelDevices: Map<number, Array<string>> = new Map([
   [12287, ['at89c5132', 'at89c5snd1c']],
 ]);
 
-let dfuProgrammer: string;
-
-if (process.platform == 'win32') {
-  dfuProgrammer = path.resolve('programmers', './dfu-programmer.exe');
-} else if (process.platform == 'darwin') {
-  dfuProgrammer = path.resolve('programmers', './dfu-programmer');
-} else {
-  dfuProgrammer = 'dfu-programmer';
-}
-log.info('DFU programmer is', dfuProgrammer);
-
-/**
- * Erase data from mcu
- * @return {Promise} reject - erase failed
- * @return {Promise} resolve - successfully erased mcu
- * @module programmers/dfuProgrammer
- */
-function eraseChip(device: string): Promise<boolean | Error> {
-  return new Promise((resolve, reject) => {
-    let command = dfuProgrammer;
-    let args = [device, 'erase'];
-    if (process.platform === 'win32') {
-      args.push('--force');
-    }
-
-    const regex = /.*Success.*\r?|\rChecking memory from .* Empty.*/;
-    const eraser = spawn(command, args);
-    const stderr: string[] = [];
-
-    eraser.stderr.on('data', stderr.push);
-
-    eraser.on('exit', (code /*, signal*/) => {
-      const str = stderr.join('');
-      if (
-        code === 0 ||
-        regex.test(str) ||
-        str.includes('Chip already blank') ||
-        str === ''
-      ) {
-        window.Bridge.statusAppend('Erase Succeeded');
-        resolve(true);
-      } else {
-        window.Bridge.statusAppend('Erase Failed');
-        window.Bridge.statusAppend(` ${str}`);
-        reject(new Error('Erase Failed'));
-      }
-    });
-  });
-}
-
-/**
- * Flash hex to mcu
- * @return {Promise} flash failed resolve or successfully flashed mcu
- * @module programmers/dfuProgrammer
- */
-function flashChip(device: string): Promise<boolean | Error> {
-  return new Promise((resolve, reject) => {
-    const command = dfuProgrammer;
-    const args = [device, 'flash', window.inputPath];
-    const flasher = spawn(command, args);
-
-    // add a linefeed to console output
-    window.Bridge.statusAppend('');
-
-    flasher.stderr.on('data', window.Bridge.statusAppendNoLF);
-
-    flasher.on('exit', (code) => {
-      if (code === 0) {
-        resolve(true);
-      } else {
-        window.Bridge.statusAppend('Flashing Failed');
-        reject(new Error('Flash Failed'));
-      }
-    });
-  });
-}
-
-/**
- * reset chip
- * @return {Promise} reject - reset failed
- * @return {Promise} resolve - successfully reset mcu
- * @see  programmers/dfuProgrammer
- */
-function resetChip(device: string): Promise<boolean | Error> {
-  return new Promise((resolve, reject) => {
-    const command: string = dfuProgrammer;
-    const args = [device, 'reset'];
-    const resetter = spawn(command, args);
-    const stderr: string[] = [];
-
-    resetter.stderr.on('data', stderr.push);
-    resetter.on('exit', (code) => {
-      window.Bridge.statusAppend(` ${stderr.join()}`);
-      if (code === 0) {
-        resolve(true);
-      } else {
-        window.Bridge.statusAppend('Reset Failed');
-        reject(new Error('Reset Failed'));
-      }
-    });
-  });
-}
-
-/**
- * handler
- * @param {number} productID
- * @param {string} _processor processor submitted from api
- * @module programmers/dfuProgrammer
- */
-async function handler(
-  productID: number,
-  processor: string
-): Promise<boolean | Error> {
-  console.log('processor: ', processor);
-  if (atmelDevices.has(productID)) {
-    const searchList = atmelDevices.get(productID);
-    console.log(searchList);
-    const index = searchList.findIndex(
-      (processorID) => processorID === processor
-    );
-
-    if (index > -1) {
-      window.Bridge.statusAppend(`Found USB Device ${processor}`);
-      try {
-        await eraseChip(processor);
-        console.log(`Erased device ${processor}`);
-        await flashChip(processor);
-        console.log(`Flashed device ${processor}`);
-        await resetChip(processor);
-        console.log(`Rebooting keyboard`);
-      } catch (err) {
-        window.Bridge.statusAppend(`  Error Flashing ${err}`);
-        return err;
-      }
-      window.Bridge.statusAppend('  Successfully Flashed Keymap onto device');
-    } else {
-      window.Bridge.statusAppend('Please connect the Keyboard and press reset');
-    }
-    return true;
+const dfuProgrammerBinary = ((): string => {
+  if (process.platform == 'win32') {
+    return path.resolve('programmers', './dfu-programmer.exe');
+  } else if (process.platform == 'darwin') {
+    return path.resolve('programmers', './dfu-programmer');
   }
-  return false;
+  return 'dfu-programmer';
+})();
+
+log.info('DFU programmer is', dfuProgrammerBinary);
+
+export class DFUProgrammer {
+  constructor(
+    productID: number,
+    processor: string,
+    loggerNoLF: (msg: string) => void
+  ) {
+    this.productID = productID;
+    this.processor = processor;
+    this.loggerNoLF = loggerNoLF;
+  }
+
+  productID: number;
+  processor: string;
+  loggerNoLF: (msg: string) => void;
+
+  /**
+   * Erase data from mcu
+   * @return {Promise} reject - erase failed
+   * @return {Promise} resolve - successfully erased mcu
+   * @module programmers/dfuProgrammer
+   */
+  static eraseChip(
+    loggerNoLF: (msg: string) => void,
+    device: string
+  ): Promise<StateMachineRet> {
+    const ERASED_NOT_BLANK = 5;
+    return new Promise(function eraseChipResolver(resolve, reject) {
+      let command = dfuProgrammerBinary;
+      let args = [device, 'erase'];
+      if (process.platform === 'win32') {
+        args.push('--force');
+      }
+
+      const stderr: string[] = [];
+      const regex = /.*Success.*\r?|\rChecking memory from .* Empty.*/;
+      const eraser = spawn(command, args);
+
+      const cancelID = timeoutBuilder(reject, eraser, 'Erase Timedout');
+
+      eraser.stderr.on('data', stderr.push);
+
+      eraser.on('exit', (code: unknown /*, signal*/) => {
+        clearTimeout(cancelID);
+        const str = stderr.join('');
+        if (
+          code === 0 ||
+          code === ERASED_NOT_BLANK ||
+          str === '' ||
+          regex.test(str)
+        ) {
+          resolve(OK);
+        } else {
+          loggerNoLF(` ${str}`);
+          if (code === null) {
+            reject(new Error('Erase Timedout'));
+          } else {
+            reject(new Error(`Erase Failed ${code}`));
+          }
+        }
+      });
+    });
+  }
+
+  /**
+   * Flash hex to mcu
+   * @return {Promise} flash failed resolve or successfully flashed mcu
+   * @module programmers/dfuProgrammer
+   */
+  static flashChip(
+    loggerNoLF: (msg: string) => void,
+    device: string
+  ): Promise<StateMachineRet> {
+    return new Promise((resolve, reject) => {
+      const args = [device, 'flash', window.inputPath];
+      const flasher = spawn(dfuProgrammerBinary, args);
+
+      // add a linefeed to console output
+      loggerNoLF('\n');
+
+      const cancelID = timeoutBuilder(reject, flasher, 'Flash Timedout');
+
+      flasher.stderr.on('data', loggerNoLF);
+
+      flasher.on('exit', (code: unknown) => {
+        clearTimeout(cancelID);
+        if (code === 0) {
+          resolve(OK);
+        } else {
+          if (code !== null) {
+            loggerNoLF(`Flashing Failed ${code}`);
+            reject(new Error(`Flash Failed ${code}`));
+          }
+        }
+      });
+    });
+  }
+
+  /**
+   * reset chip
+   * @return {Promise} reject - reset failed
+   * @return {Promise} resolve - successfully reset mcu
+   * @see  programmers/dfuProgrammer
+   */
+  static resetChip(
+    loggerNoLF: (msg: string) => void,
+    device: string
+  ): Promise<StateMachineRet> {
+    return new Promise((resolve, reject) => {
+      const args = [device, 'reset'];
+
+      const resetter = spawn(dfuProgrammerBinary, args);
+
+      const cancelID = timeoutBuilder(reject, resetter, 'Reset Timedout');
+
+      resetter.on('exit', (code: unknown) => {
+        clearTimeout(cancelID);
+        if (code === 0) {
+          resolve(OK);
+        } else {
+          if (code !== null) {
+            loggerNoLF('Reset Failed');
+            reject(Error('Reset Failed'));
+          }
+        }
+      });
+    });
+  }
+
+  isCompatible(): boolean {
+    if (atmelDevices.has(this.productID)) {
+      const searchList = atmelDevices.get(this.productID);
+      console.log(searchList);
+      const index = searchList.findIndex(
+        (processorID) => processorID === this.processor
+      );
+      return index > -1;
+    }
+    return false;
+  }
+
+  methods(): Methods {
+    const processor = this.processor;
+    const isCompatible = this.isCompatible.bind(this);
+    const loggerNoLF = this.loggerNoLF;
+    const eraseChip = DFUProgrammer.eraseChip.bind(this, loggerNoLF);
+    const flashChip = DFUProgrammer.flashChip.bind(this, loggerNoLF);
+    const resetChip = DFUProgrammer.resetChip.bind(this, loggerNoLF);
+    const ra: (
+      fn: Promise<unknown>,
+      successMsg: string,
+      failMsg: unknown
+    ) => Promise<StateMachineRet> = responseAdapter.bind(undefined, loggerNoLF);
+    const fw: FlashWriter = {
+      validator(): PromiseLike<StateMachineRet> {
+        return ra(
+          new Promise((resolve, reject) => {
+            isCompatible()
+              ? resolve(OK)
+              : reject(new Error('incompatible mcu'));
+          }),
+          `Found USB Device ${processor}`,
+          'Please connect the Keyboard and press reset'
+        );
+      },
+      eraser(): PromiseLike<StateMachineRet> {
+        loggerNoLF(`Erasing ${processor}\n`);
+        return ra(eraseChip(processor), 'Erase Succeeded', 'Erase Failed');
+      },
+      flasher(): PromiseLike<StateMachineRet> {
+        loggerNoLF(`Flashing ${processor}\n`);
+        return ra(
+          flashChip(processor),
+          `Flashing Succeeded`,
+          (r: PromiseLike<Error>) => `Flashing Failed ${r}`
+        );
+      },
+      restarter(): PromiseLike<StateMachineRet> {
+        return ra(
+          resetChip(processor),
+          `Restarting Keyboard`,
+          (r: PromiseLike<Error>) => `Restart Failed ${r}`
+        );
+      },
+    };
+    return {
+      ...fw,
+    };
+  }
 }
 
 /**
@@ -171,9 +235,15 @@ async function handler(
  * @param {string} processor processor submitted from api
  * @module programmers/dfuProgrammer
  */
-export function dfuProgrammerFlash(productID: number, processor: string): void {
+export function dfuProgrammerFlash(
+  productID: number,
+  processor: string,
+  loggerNoLF: (msg: string) => void
+): void {
   if (processor) {
-    handler(productID, processor);
+    const programmer = new DFUProgrammer(productID, processor, loggerNoLF);
+    const sm = newStateMachine({methods: programmer.methods()});
+    sm.ready();
   } else {
     prompt({
       title: 'Processor',
@@ -185,7 +255,9 @@ export function dfuProgrammerFlash(productID: number, processor: string): void {
         if (r === null) {
           window.Bridge.statusAppend('No selection made flashing cancelled');
         } else {
-          handler(productID, r);
+          const programmer = new DFUProgrammer(productID, r, loggerNoLF);
+          const sm = newStateMachine({methods: programmer.methods()});
+          sm.ready();
         }
       })
       .catch(log.error);

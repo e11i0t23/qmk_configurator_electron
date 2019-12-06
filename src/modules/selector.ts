@@ -1,7 +1,7 @@
 import {dfuProgrammerFlash} from './programmers/dfu-programmer';
-import {stm32, kiibohd} from './programmers/dfu-util';
+import {Family, dfuUtilFlash} from './programmers/dfu-util';
 import isUndefined from 'lodash/isUndefined';
-import {caterina, avrisp, USBtiny, USBasp} from './programmers/avrdude';
+import {AVRDudeFlash, Family as AVRDudeFamily} from './programmers/avrdude';
 import {tlc} from './programmers/teensy_loader_cli';
 import {atmelSamBa} from './programmers/mdloader';
 
@@ -34,7 +34,6 @@ function selector(processor?: string): void {
     const programmer = deviceIDs.get(vendorID);
     if (!isUndefined(programmer)) {
       // Forwards onto seperate programming scripts found in ./modules/programmers
-      let mcu = '';
       switch (programmer) {
         case 'dfu-programmer':
           if (!flashing) {
@@ -43,7 +42,11 @@ function selector(processor?: string): void {
               atmelSamBa();
             } else {
               window.Bridge.statusAppend('Using DFU-Programmer');
-              setTimeout(() => dfuProgrammerFlash(productID, processor), 500);
+              dfuProgrammerFlash(
+                productID,
+                processor,
+                window.Bridge.statusAppendNoLF
+              );
             }
             flashing = true;
           }
@@ -52,21 +55,31 @@ function selector(processor?: string): void {
           if (!flashing) {
             flashing = true;
             window.Bridge.statusAppend('Using avrdude to flash caterina');
-            mcu = 'm32u4';
-            caterina(mcu);
+            AVRDudeFlash(
+              window.inputPath,
+              AVRDudeFamily.CATERINA,
+              window.Bridge.statusAppendNoLF
+            );
           }
           break;
         case 'avrisp/usbasp':
           if (!flashing) {
             flashing = true;
-            mcu = 'm32u4';
             if (productID == 0x0483) {
               window.Bridge.statusAppend('Using avrdude to flash avrisp');
-              avrisp(mcu);
+              AVRDudeFlash(
+                window.inputPath,
+                AVRDudeFamily.AVRISP,
+                window.Bridge.statusAppendNoLF
+              );
             }
             if (productID == 0x05dc) {
               window.Bridge.statusAppend('Using avrdude to flash USBasp');
-              USBasp(mcu);
+              AVRDudeFlash(
+                window.inputPath,
+                AVRDudeFamily.USBASP,
+                window.Bridge.statusAppendNoLF
+              );
             }
             if (productID == 0x0486 || productID == 0x0478) {
               window.Bridge.statusAppend(
@@ -80,8 +93,11 @@ function selector(processor?: string): void {
           if (!flashing) {
             flashing = true;
             window.Bridge.statusAppend('Using avrdude to flash caterina');
-            mcu = 'm32u4';
-            USBtiny(mcu);
+            AVRDudeFlash(
+              window.inputPath,
+              AVRDudeFamily.USBTINY,
+              window.Bridge.statusAppendNoLF
+            );
           }
           break;
         case 'dfu-util':
@@ -89,9 +105,17 @@ function selector(processor?: string): void {
             flashing = true;
             window.Bridge.statusAppend('Using dfu-util to flash dfu');
             if (vendorID === 0x0483) {
-              stm32();
+              dfuUtilFlash(
+                window.inputPath,
+                Family.stm32,
+                window.Bridge.statusAppendNoLF
+              );
             } else if (vendorID === 0x1c11) {
-              kiibohd();
+              dfuUtilFlash(
+                window.inputPath,
+                Family.kiibohd,
+                window.Bridge.statusAppendNoLF
+              );
             }
           }
           break;
