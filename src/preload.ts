@@ -2,6 +2,7 @@
 // the remote web app will not have access, so this is safe
 import {ipcRenderer as ipc, remote} from 'electron';
 import {flashURL, flashFile} from './flash';
+import {detectionInit} from './detection';
 
 declare global {
   interface Window {
@@ -53,3 +54,4 @@ function init(): void {
  */
 
 init();
+detectionInit();

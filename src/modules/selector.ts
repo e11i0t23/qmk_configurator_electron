@@ -7,7 +7,7 @@ import {atmelSamBa} from './programmers/mdloader';
 
 import usb from 'usb';
 
-const deviceIDs: Map<number, string> = new Map([
+export const deviceIDs: Map<number, string> = new Map([
   [0x03eb, 'dfu-programmer'], // Atmel vendor id
   [0x2341, 'caterina'], // Arduino vendor id
   [0x1b4f, 'caterina'], // Sparkfun vendor id
