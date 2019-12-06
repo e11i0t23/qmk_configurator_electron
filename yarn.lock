@@ -4309,9 +4309,10 @@ url-parse-lax@^3.0.0:
   dependencies:
     prepend-http "^2.0.0"
 
-usb-detection@kryops/node-usb-detection#node13:
-  version "4.5.0"
-  resolved "https://codeload.github.com/kryops/node-usb-detection/tar.gz/a57c95249dc97b596f9a3f24059885a87a3e2e5d"
+usb-detection@^4.7.0:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/usb-detection/-/usb-detection-4.7.0.tgz#2a740888e5043fcebf1fcbd7511dd0bc2c5408a4"
+  integrity sha512-HE9y5uYfA2ebVo64BrIB0OVNaVKZ2oWkadpTItCi4YQXyZ9vD0705iqQ3B7Rz8xevcrW/RNg/85E2o2JoPFmsQ==
   dependencies:
     bindings "^1.3.0"
     eventemitter2 "^5.0.1"

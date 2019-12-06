@@ -113,6 +113,6 @@
     "serialport": "^8.0.5",
     "temp": "^0.9.0",
     "usb": "^1.6.0",
-    "usb-detection": "kryops/node-usb-detection#node13"
+    "usb-detection": "^4.7.0"
   }
 }
