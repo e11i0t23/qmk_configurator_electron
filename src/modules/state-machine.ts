@@ -190,12 +190,12 @@ const defaultOptions: Options = {
     },
     onEnterState(lifecycle: LifeCycle, ...args: any[]): boolean {
       console.log(lifecycle, args);
-      this.emitter(lifecycle.transition, ...args);
+      this.emitter.emit(lifecycle.transition, ...args);
       return true;
     },
     onLeaveState(lifecycle: LifeCycle, ...args: any[]): boolean {
       console.log(lifecycle, args);
-      this.emitter(lifecycle.transition, ...args);
+      this.emitter.emit(lifecycle.transition, ...args);
       return true;
     },
     on(event: string, fn: Function): void {
