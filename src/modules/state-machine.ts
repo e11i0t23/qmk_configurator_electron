@@ -1,5 +1,6 @@
 import StateMachineC from 'javascript-state-machine';
 import log from 'electron-log';
+import EventEmitter from 'events';
 
 import {
   StateMachine,
@@ -7,6 +8,7 @@ import {
   StateMachineRet,
   Response,
   Request,
+  LifeCycle,
 } from './types';
 import transitions from './transitions';
 import {WAITING} from './transitions';
@@ -20,10 +22,11 @@ const defaultOptions: Options = {
   name: 'flashStateMachine',
   init: WAITING,
   transitions,
-  data: (): {error: Error; request: Request} => {
+  data: (): {error: Error; request: Request; emitter: EventEmitter} => {
     return {
       error: undefined,
       request: undefined,
+      emitter: new EventEmitter(),
     };
   },
   methods: {
@@ -176,15 +179,33 @@ const defaultOptions: Options = {
       this.succeeder('success');
       debug && console.log('>>>>> we did it reddit <<<<<');
     },
-    onTransition: function(lifecycle, arg1, arg2): boolean {
+    onTransition: function(lifecycle: LifeCycle, ...args: any[]): boolean {
       if (debug) {
         console.log('event ', lifecycle.transition); // 'step'
         console.log('state from ', lifecycle.from); // 'A'
         console.log('state to ', lifecycle.to); // 'B'
-        console.log(arg1); // 42
-        console.log(arg2); // 'hello'
+        console.log('args ', args);
       }
       return true;
+    },
+    onEnterState(lifecycle: LifeCycle, ...args: any[]): boolean {
+      console.log(lifecycle, args);
+      this.emitter(lifecycle.transition, ...args);
+      return true;
+    },
+    onLeaveState(lifecycle: LifeCycle, ...args: any[]): boolean {
+      console.log(lifecycle, args);
+      this.emitter(lifecycle.transition, ...args);
+      return true;
+    },
+    on(event: string, fn: Function): void {
+      this.emitter.on(event, fn);
+    },
+    off(event: string, fn: Function): void {
+      this.emitter.off(event, fn);
+    },
+    once(event: string, fn: Function): void {
+      this.emitter.once(event, fn);
     },
   },
 };
