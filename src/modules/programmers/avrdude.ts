@@ -6,7 +6,6 @@ import {timeoutBuilder, responseAdapter} from './utils';
 
 const spawn = childProcess.spawn;
 import SerialPort from 'serialport';
-//import prompt from 'electron-prompt';
 import log from 'electron-log';
 
 export enum Family {
@@ -129,25 +128,6 @@ export class AVRDude {
         const vendorIDs = VendorIDs.get(family);
         return ra(
           new Promise((resolve, reject) => {
-            /*
-            switch (family) {
-              case Family.USBTINY:
-              case Family.USBASP:
-                return prompt({
-                  title: 'Processor',
-                  label: 'Please submit processor',
-                  height: 150,
-                  value: mcu,
-                })
-                  .then((r) => {
-                    if (r === null) {
-                      reject(new Error('No selection made flashing cancelled'));
-                    }
-                  })
-                  .catch(reject);
-            }
-            */
-
             // @
             if (family === Family.USBASP) {
               setComName('usb');

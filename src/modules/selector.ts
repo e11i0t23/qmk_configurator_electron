@@ -148,36 +148,16 @@ function selector(processor?: string): void {
  */
 export function routes(keyboard: string): void {
   console.log(keyboard);
-  window.Bridge.autoFlash = false;
   flashing = false;
-  if (keyboard != null) {
-    window.Bridge.autoFlash = true;
-    try {
-      fetch('https://api.qmk.fm/v1/keyboards/' + keyboard)
-        .then((res) => res.json())
-        .then((data) => data.keyboards[keyboard].processor)
-        .then((processor) => {
-          flashing = false;
-          selector(processor);
-          console.log('Auto Flash: ', window.Bridge.autoFlash);
-          if (window.Bridge.autoFlash) {
-            timeout = 0;
-            intervalID = setInterval(() => {
-              if (timeout == 9) {
-                window.Bridge.statusAppend('Flashing Timed-out');
-                clearInterval(intervalID);
-              } else if (!flashing) {
-                selector(processor);
-                timeout++;
-              } else clearInterval(intervalID);
-            }, 5000);
-          }
-        })
-        .catch((err) => console.error(err));
-    } catch (err) {
-      console.error(err);
-    }
-  } else {
-    selector();
-  }
+  timeout = 0;
+  selector(window.Bridge.processor);
+  intervalID = setInterval(() => {
+    if (timeout == 9) {
+      window.Bridge.statusAppend('Flashing Timed-out');
+      clearInterval(intervalID);
+    } else if (!flashing) {
+      selector(window.Bridge.processor);
+      timeout++;
+    } else clearInterval(intervalID);
+  }, 5000);
 }

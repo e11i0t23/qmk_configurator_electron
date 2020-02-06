@@ -25,7 +25,6 @@ function init(): void {
   window.Bridge = {
     flashURL,
     flashFile,
-    autoFlash: Boolean,
     enableFlashing: Boolean,
   };
 
