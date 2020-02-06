@@ -18,7 +18,8 @@ export const deviceIDs: Map<number, string> = new Map([
   [0x1781, 'usbtiny'],
 ]);
 let flashing = false;
-
+let intervalID: NodeJS.Timeout;
+let timeout: number;
 /**
  * Selects the programmer to use
  * @param {String} processor
@@ -152,7 +153,7 @@ export function routes(keyboard: string): void {
   if (keyboard != null) {
     window.Bridge.autoFlash = true;
     try {
-      fetch('http://api.qmk.fm/v1/keyboards/' + keyboard)
+      fetch('https://api.qmk.fm/v1/keyboards/' + keyboard)
         .then((res) => res.json())
         .then((data) => data.keyboards[keyboard].processor)
         .then((processor) => {
@@ -160,9 +161,16 @@ export function routes(keyboard: string): void {
           selector(processor);
           console.log('Auto Flash: ', window.Bridge.autoFlash);
           if (window.Bridge.autoFlash) {
-            while (!flashing) {
-              setTimeout(() => selector(processor), 5000);
-            }
+            timeout = 0;
+            intervalID = setInterval(() => {
+              if (timeout == 9) {
+                window.Bridge.statusAppend('Flashing Timed-out');
+                clearInterval(intervalID);
+              } else if (!flashing) {
+                selector(processor);
+                timeout++;
+              } else clearInterval(intervalID);
+            }, 5000);
           }
         })
         .catch((err) => console.error(err));
