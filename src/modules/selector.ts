@@ -128,14 +128,7 @@ function selector(processor?: string): void {
       }
       break;
     } else if (USBdevice == USBdevices[USBdevicesQTY - 1]) {
-      if (!window.Bridge.autoFlash)
-        window.Bridge.statusAppend(
-          'ERROR: No USB Device Found. Try pressing reset on your keyboard'
-        );
-      else
-        window.Bridge.statusAppend(
-          'ERROR: No USB Device Found Retrying in 5 secs'
-        );
+      window.Bridge.statusAppend('ERROR: No USB Device Found. Try pressing reset on your keyboard. Retrying in 5 secs')
     }
   }
 }
@@ -147,16 +140,17 @@ function selector(processor?: string): void {
  * @member selector
  */
 export function routes(keyboard: string): void {
-  console.log(keyboard);
+  console.log(window.inputPath);
+  window.Bridge.statusAppend(('Firmware Located at: ' + window.inputPath.toString()))
   flashing = false;
   timeout = 0;
-  selector(window.Bridge.processor);
+  selector(window.Bridge.processor());
   intervalID = setInterval(() => {
     if (timeout == 9) {
       window.Bridge.statusAppend('Flashing Timed-out');
       clearInterval(intervalID);
     } else if (!flashing) {
-      selector(window.Bridge.processor);
+      selector(window.Bridge.processor());
       timeout++;
     } else clearInterval(intervalID);
   }, 5000);
