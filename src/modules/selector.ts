@@ -18,7 +18,8 @@ export const deviceIDs: Map<number, string> = new Map([
   [0x1781, 'usbtiny'],
 ]);
 let flashing = false;
-
+let intervalID: NodeJS.Timeout;
+let timeout: number;
 /**
  * Selects the programmer to use
  * @param {String} processor
@@ -127,14 +128,7 @@ function selector(processor?: string): void {
       }
       break;
     } else if (USBdevice == USBdevices[USBdevicesQTY - 1]) {
-      if (!window.Bridge.autoFlash)
-        window.Bridge.statusAppend(
-          'ERROR: No USB Device Found. Try pressing reset on your keyboard'
-        );
-      else
-        window.Bridge.statusAppend(
-          'ERROR: No USB Device Found Retrying in 5 secs'
-        );
+      window.Bridge.statusAppend('ERROR: No USB Device Found. Try pressing reset on your keyboard. Retrying in 5 secs')
     }
   }
 }
@@ -146,30 +140,18 @@ function selector(processor?: string): void {
  * @member selector
  */
 export function routes(keyboard: string): void {
-  console.log(keyboard);
-  window.Bridge.autoFlash = false;
+  console.log(window.inputPath);
+  window.Bridge.statusAppend(('Firmware Located at: ' + window.inputPath.toString()))
   flashing = false;
-  if (keyboard != null) {
-    window.Bridge.autoFlash = true;
-    try {
-      fetch('http://api.qmk.fm/v1/keyboards/' + keyboard)
-        .then((res) => res.json())
-        .then((data) => data.keyboards[keyboard].processor)
-        .then((processor) => {
-          flashing = false;
-          selector(processor);
-          console.log('Auto Flash: ', window.Bridge.autoFlash);
-          if (window.Bridge.autoFlash) {
-            while (!flashing) {
-              setTimeout(() => selector(processor), 5000);
-            }
-          }
-        })
-        .catch((err) => console.error(err));
-    } catch (err) {
-      console.error(err);
-    }
-  } else {
-    selector();
-  }
+  timeout = 0;
+  selector(window.Bridge.processor());
+  intervalID = setInterval(() => {
+    if (timeout == 9) {
+      window.Bridge.statusAppend('Flashing Timed-out');
+      clearInterval(intervalID);
+    } else if (!flashing) {
+      selector(window.Bridge.processor());
+      timeout++;
+    } else clearInterval(intervalID);
+  }, 5000);
 }

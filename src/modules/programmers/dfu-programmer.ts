@@ -1,7 +1,6 @@
 import * as path from 'path';
 import * as childProcess from 'child_process';
 const spawn = childProcess.spawn;
-import prompt from 'electron-prompt';
 import log from 'electron-log';
 import first from 'lodash/first';
 import {FlashWriter, Methods, StateMachineRet, Response} from '../types';
@@ -240,26 +239,7 @@ export function dfuProgrammerFlash(
   processor: string,
   loggerNoLF: (msg: string) => void
 ): void {
-  if (processor) {
     const programmer = new DFUProgrammer(productID, processor, loggerNoLF);
     const sm = newStateMachine({methods: programmer.methods()});
     sm.ready();
-  } else {
-    prompt({
-      title: 'Processor',
-      label: 'Please submit processor',
-      height: 150,
-      value: first(atmelDevices.get(productID)),
-    })
-      .then((r: string) => {
-        if (r === null) {
-          window.Bridge.statusAppend('No selection made flashing cancelled');
-        } else {
-          const programmer = new DFUProgrammer(productID, r, loggerNoLF);
-          const sm = newStateMachine({methods: programmer.methods()});
-          sm.ready();
-        }
-      })
-      .catch(log.error);
-  }
 }

@@ -26,16 +26,16 @@ function createWindow(): void {
       nodeIntegrationInWorker: false,
       nodeIntegrationInSubFrames: false,
       safeDialogs: true,
+      nodeIntegration: false,
       webSecurity: true,
       webviewTag: false,
       /* future security features to turn on
       sandbox: true,
-      nodeIntegration: false,
       contextIsolation: true,
       enableRemoteModule: false,
        */
     },
-    width: 1200,
+    width: 1650,
   });
   // process.win = win;
   let url = 'https://config.qmk.fm';
