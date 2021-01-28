@@ -82,7 +82,7 @@
     "@typescript-eslint/eslint-plugin-tslint": "^2.7.0",
     "@typescript-eslint/parser": "^2.7.0",
     "avrgirl-arduino": "^3.0.2",
-    "electron": "^7.1.1",
+    "electron": "^9.4.0",
     "electron-builder": "22.1.0",
     "electron-builder-squirrel-windows": "^22.1.0",
     "electron-rebuild": "^1.8.6",
