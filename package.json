@@ -102,7 +102,7 @@
     "electron-log": "^3.0.9",
     "electron-prompt": "^1.4.0",
     "electron-updater": "^4.1.2",
-    "follow-redirects": "^1.7.0",
+    "follow-redirects": "^1.14.7",
     "global": "^4.4.0",
     "install": "^0.13.0",
     "javascript-state-machine": "^3.1.0",
